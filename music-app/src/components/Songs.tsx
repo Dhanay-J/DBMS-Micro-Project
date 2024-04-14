@@ -1,8 +1,11 @@
-import React from 'react'
-
+import SearchComponent  from "./Search.tsx";
+// export  SearchComponent;
 function Songs() {
   return (
-    <div>Songs</div>
+    <>
+      <div className="p-2">Songs</div>
+      <SearchComponent fact={"Search Songs"}/>
+    </>
   )
 }
 

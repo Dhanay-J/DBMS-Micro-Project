@@ -2,6 +2,7 @@
 logs
 *.log
 *.mp3
+.*ignore
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

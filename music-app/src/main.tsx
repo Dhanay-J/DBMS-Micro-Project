@@ -8,12 +8,16 @@ import Player from './components/Player.tsx'
 import Songs from './components/Songs.tsx'
 import PlayLists from './components/PlayLists.tsx'
 import Artists from './components/Artists.tsx'
-import Navbar from './components/Navbar.tsx'
+import MusicNavbar from './components/Navbar.tsx'
+
+
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <Navbar />
+      <MusicNavbar />
+      <div className='p-5'></div>
+      
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path='/player' element={<Player />} />
@@ -21,7 +25,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path='/playlists' element={<PlayLists />} />
         <Route path='/artists' element={<Artists />} />
       </Routes>
-    </BrowserRouter>
 
+      <div className='p-5'></div>
+    </BrowserRouter>
+    <Player />
   </React.StrictMode>,
 )

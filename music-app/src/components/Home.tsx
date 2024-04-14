@@ -1,8 +1,12 @@
 import React from 'react'
 
+
+
+
+
 function Home() {
   return (
-    <div>Ho me is here </div>
+    <div className="p-2">Home Page</div>
   )
 }
 

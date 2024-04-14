@@ -1,9 +1,12 @@
-import React from 'react'
+import SearchComponent from "./Search";
 
 function PlayLists() {
   return (
-    <div>PlayLists</div>
+    <>
+      <div className="p-2">PlayLists</div>
+      <SearchComponent fact={"Search Playlist"} />
+    </>
   )
 }
 
-export default PlayLists
+export default PlayLists;
