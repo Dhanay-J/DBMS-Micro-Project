@@ -1,0 +1,11 @@
+﻿UserID,Username,Email,Password,SubscriptionTier
+1,user1,user1@example.com,password123,Free
+2,user2,user2@example.com,securepwd456,Premium
+3,user3,user3@example.com,hashedpwd789,Free
+4,user4,user4@example.com,testpassword1,Free
+5,user5,user5@example.com,secret12345,Premium
+6,user6,user6@example.com,password123,Free
+7,user7,user7@example.com,securepwd456,Premium
+8,user8,user8@example.com,hashedpwd789,Free
+9,user9,user9@example.com,testpassword1,Free
+10,user10,user10@example.com,secret12345,Premium
