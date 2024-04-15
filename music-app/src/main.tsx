@@ -14,20 +14,22 @@ import MusicNavbar from './components/Navbar.tsx'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <MusicNavbar />
-      <div className='p-5'></div>
-      
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path='/player' element={<Player />} />
-        <Route path='/songs' element={<Songs />} />
-        <Route path='/playlists' element={<PlayLists />} />
-        <Route path='/artists' element={<Artists />} />
-      </Routes>
+  <>
+  <BrowserRouter>
+    <MusicNavbar />
+    <div className='p-5'></div>
+    
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path='/player' element={<Player />} />
+      <Route path='/songs' element={<Songs />} />
+      <Route path='/playlists' element={<PlayLists />} />
+      <Route path='/artists' element={<Artists />} />
+    </Routes>
 
-      <div className='p-5'></div>
-    </BrowserRouter>
-    <Player />
-  </React.StrictMode>,
+    <div className='p-5'></div>
+  </BrowserRouter>
+  <Player />
+  </>
+  </React.StrictMode>, 
 )
