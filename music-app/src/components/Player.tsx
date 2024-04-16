@@ -9,7 +9,7 @@ const Player = () => {
       
     <div className="d-flex justify-content-center">
       <ReactAudioPlayer
-      src="/src/components/Na Ja.mp3"
+      src="/src/assets/songs/Gods Plan..mp3"
       
       volume={0.2}
       controls={true}

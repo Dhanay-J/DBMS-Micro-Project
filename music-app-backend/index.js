@@ -5,7 +5,7 @@ const port = 3000;
 
 const config = {
     user: 'system', // User name
-    password: '', // Password for user
+    password: 'system', // Password for user
     connectString: '192.168.2.1:1521/xe'
 };
 
@@ -31,7 +31,7 @@ app.listen(port, () => {
 
 connect();  // Connect to Oracle DB
 
-app.get('/data', async (req, res) => {
+app.get('/songs', async (req, res) => {
     var query = req.query['Query'];
     console.log(query);
     try{

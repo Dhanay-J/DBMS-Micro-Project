@@ -13,6 +13,7 @@ function MusicNavbar() {
                 <Nav.Link href="/">Home</Nav.Link>
                 <Nav.Link href="/songs">Songs</Nav.Link>
                 <Nav.Link href="/playlists">Playlists</Nav.Link>
+                <Nav.Link href="/artists">Artist</Nav.Link>
               </Nav>
             </Container>
           </Navbar>
