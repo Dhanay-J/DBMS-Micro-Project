@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { FormControl, Button } from "react-bootstrap";
 
 const SearchComponent = ({fact}: {fact: string}) => {

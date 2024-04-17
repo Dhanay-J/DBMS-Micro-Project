@@ -1,29 +1,24 @@
 import ReactAudioPlayer from 'react-audio-player';
-
+import { useContext } from 'react';
+import { MusicContext } from './Songs';
 
 const Player = () => {
-  
 
+  const url = useContext(MusicContext);
+  
   return (
     <>
-      
-    <div className="d-flex justify-content-center">
-      <ReactAudioPlayer
-      src="/src/assets/songs/Gods Plan..mp3"
-      
-      volume={0.2}
-      controls={true}
-      
-      className="w-80"
-      />
-    </div>
-
-
-
+      <div className="d-flex justify-content-center fixed-bottom m-3">
+        <ReactAudioPlayer
+          src={url}
+          volume={0.2}
+          autoPlay
+          controls
+          className="w-80"
+        />
+      </div>
     </>
-
   );
 };
 
-
-export default Player
+export default Player;
