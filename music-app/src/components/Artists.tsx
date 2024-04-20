@@ -9,13 +9,20 @@ import Player from "./Player";
 
 async function fetchArtist() {
   try {
-    const response = await fetch("http://localhost:3000/songs?Query=SELECT a.artistid, al.albumid, s.url, s.title, a.name, al.title ,s.songid FROM artist a inner JOIN albums al ON a.artistid = al.artistid join songs s on s.albumid = al.albumid  order by a.artistid , al.albumid");
-    if (!response.ok) {
-      throw new Error(`Error fetching songs: ${response.statusText}`);
+    const album_title = await fetch("http://localhost:3000/songs?Query=select a.name,al.title from ALBUMS al join ARTIST a on a.ARTISTID = al.ARTISTID;");
+    const songs = await fetch("http://localhost:3000/songs?Query=select s.title,a.name,s.url from songs s join artist a on s.ARTISTID = a.ARTISTID;");
+    if (!album_title.ok) {
+      throw new Error(`Error fetching songs: ${album_title.statusText}`);
     }
-    const data = await response.json();
-    console.log(data);
-    return data;
+    if (!songs.ok) {
+      throw new Error(`Error fetching songs: ${songs.statusText}`);
+    }
+    const data1 = await songs.json();
+    console.log(data1);
+    return data1;
+    const data2 = await album_title.json();
+    console.log(data2);
+    return data2;
   } catch (error) {
     console.error("Error fetching songs:", error);
     // Handle error gracefully, e.g., display an error message to the user

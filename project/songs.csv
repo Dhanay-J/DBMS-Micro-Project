@@ -1,14 +1,14 @@
 ﻿SongID,Title,ArtistID,AlbumID,Duration,Explicit,URL
-1,Shape of You,1,1,233,TRUE,https://example.com/shape-of-you.mp3
-2,Love Story,2,2,234,FALSE,https://example.com/love-story.mp3
-3,God's Plan,3,3,200,TRUE,https://example.com/gods-plan.mp3
+1,Shape of You,1,1,233,TRUE,/src/assets/songs/Shape of You..mp3
+2,Love Story,2,2,234,FALSE,/src/assets/songs/Indila - Love Story (Lyrics)..mp3
+3,God's Plan,3,3,200,TRUE,/src/assets/songs/Gods Plan..mp3
 4,Single Ladies,4,4,232,FALSE,https://example.com/single-ladies.mp3
-5,Blinding Lights,5,5,214,FALSE,https://example.com/blinding-lights.mp3
-6,Hello,6,6,258,FALSE,https://example.com/hello.mp3
+5,Blinding Lights,5,5,214,FALSE,/src/assets/songs/The Weeknd - Blinding Lights (Lyrics)..mp3
+6,Hello,6,6,258,FALSE,/src/assets/songs/Hello (Official Music Video)..mp3
 7,Sorry,7,7,220,FALSE,https://example.com/sorry.mp3
 8,Work,8,8,220,TRUE,https://example.com/work.mp3
-9,Uptown Funk,9,9,270,FALSE,https://example.com/uptown-funk.mp3
-10,Stitches,10,10,210,FALSE,https://example.com/stitches.mp3
+9,Uptown Funk,9,9,270,FALSE,/src/assets/songs/Mark Ronson - Uptown Funk (Lyrics) ft Bruno Mars..mp3
+10,Stitches,10,10,210,FALSE,/src/assets/songs/Shawn Mendes - Stitches (Lyrics)..mp3
 11,Dance Monkey,5,11,210,FALSE,https://example.com/dance-monkey.mp3
 12,Someone Like You,6,12,330,FALSE,https://example.com/someone-like-you.mp3
 13,Baby,7,13,220,TRUE,https://example.com/baby.mp3

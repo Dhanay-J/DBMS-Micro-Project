@@ -5,18 +5,42 @@ import Player from "./Player.tsx";
 
 export const MusicContext = createContext(null);
 
+
 // let data = {"rows":[]};
 // let songs = [];
 
 async function fetchSongs() {
   try {
-    const response = await fetch("http://localhost:3000/songs?Query=select a.name , al.title as album, s.url, s.title ,s.duration from artist a join songs s on a.artistid = s.artistid join albums al on s.albumid=al.albumid");
+    const response = await fetch("http://localhost:3000/songs?Query=select a.name , al.title as album, s.url, s.title ,s.duration,s.songid from artist a join songs s on a.artistid = s.artistid join albums al on s.albumid=al.albumid");
     if (!response.ok) {
       throw new Error(`Error fetching songs: ${response.statusText}`);
     }
     const data = await response.json();
     console.log(data);
     return data;
+  } catch (error) {
+    console.error("Error fetching songs:", error);
+    // Handle error gracefully, e.g., display an error message to the user
+    return [];
+  }
+}
+
+
+async function setLike(song) {
+
+  try {
+    const response = await fetch('http://localhost:3000/like', {
+      method: "POST", // *GET, POST, PUT, DELETE, etc.
+      mode: "cors", // no-cors, *cors, same-origin
+      headers: {
+        "Content-Type": "application/json",
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: JSON.stringify(song), // body data type must match "Content-Type" header
+    });
+    
+    console.log(response);
+    // return response.json(); 
   } catch (error) {
     console.error("Error fetching songs:", error);
     // Handle error gracefully, e.g., display an error message to the user
@@ -77,25 +101,47 @@ function Songs() {
     <div data-bs-spy="scroll" data-bs-target="#song-list" data-bs-offset={0} className="container" tabIndex={0}>
       {/* Set target for potential scrolling */}
       {songs.map((song) => (
-        <div className="card m-2 row" key={song[2]}>
-          <h3 className="card-title mt-2" onClick={() => setUrl(song[2])}>
-            {song[3]}
+        <div className="card m-2 row" key={song['title']}>
+          <h3 className="card-title mt-2" onClick={() => setUrl(song['url'])}>
+            {song['title']}
           </h3> {/* Use h3 for song title */}
           <div className="row vol-ctr d-flex justify-content-around">
             <div className="col ml ms-2">
-                  <img src={music} alt="" style={{ height: 120, width: 100 }} className="rounded float-start"/>
+                  <img src={music} alt="" style={{ height: 120, width: 100 }} className="rounded float-start"  onClick={() => setUrl(song['url'])}/>
             </div>
             <div className="col-sm-7 mb-5">
               <div className="card song-info">
                 <div className="card-body">
                   <h5 className="card-title artist-name" onClick={() => {}}>
-                    {song[0]}
+                    {song['name']}
                   </h5>
                   <h5 className="card-text album-name" onClick={() => {}}>
-                    {song[1]}
+                    {song['album']}
                   </h5>
-                  <h5 className="card-text">Duration: {convertSecondstoTime(song[4])}</h5>
+                  
+
+                  <h5 className="card-text">
+                    Duration: {convertSecondstoTime(song['duration'])}
+                  </h5>
+
+                  <div className="row vol-ctr d-flex justify-content-around">
+                    
+                    <div className="col ml ms-2 like m-4">
+                      <h5> Likes</h5>
+                      <button type="button" className="btn btn-primary" onClick={()=>{
+                        setLike(song);
+                      }}>Like</button>
+                    </div>
+
+                    <div className="col ml ms-2 dislike m-4">
+                      <h5>Dislikes</h5>
+                      <button type="button" className="btn btn-primary">Dislike</button>
+                    </div>
+                  </div>
+
                 </div>
+
+                
               </div>
             </div>
           </div>
