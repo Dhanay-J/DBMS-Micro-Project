@@ -76,25 +76,88 @@ app.post('/like', async (req, res) => {
   // var query = req.query['Query'];
 
   let songid = req.body['songid'];
-  console.log('Received like request: ', songid);
 
 
-  res.status(200).json({"Hai":100})
-  return
-  //var result;
-
+  // console.log('Received like request: ', songid);
   try {
-       
-      connection.query(`update songs`, function (err, results, fields) {
-          if (err) {
-              console.error(err);
-              return res.status(500).json({ error: 'Internal Server Error' });
-          }
-          console.log(results);
-          res.json(results); // Send result as JSON
-      });
-  } catch (err) {
-      console.log(err);
-      res.status(500).json({ error: 'Internal Server Error' });
-  }
+    // songid = -1;
+    connection.query(`select likes from songs where songid=${songid}`, function (err, results, fields) {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+
+        if(results.length == 0){
+          return res.status(404).json({ error: 'Song not found' });
+        }
+
+        // No error in getting the song
+        else{
+          let likes = results[0]['likes'];
+          likes += 1;
+          connection.query(`UPDATE songs SET likes = ${likes} WHERE (SongID = '${songid}')`, function (err, results, fields) {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ error: 'Internal Server Error' });
+            }
+            
+            return res.status(200).json({ likes: likes });
+
+          });
+          
+        }
+
+        // res.json(results); // Send result as JSON
+    });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+
+});
+
+
+
+app.post('/dislike', async (req, res) => {
+  // var query = req.query['Query'];
+
+  let songid = req.body['songid'];
+
+
+  // console.log('Received like request: ', songid);
+  try {
+    // songid = -1;
+    connection.query(`select dislikes from songs where songid=${songid}`, function (err, results, fields) {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+
+        if(results.length == 0){
+          return res.status(404).json({ error: 'Song not found' });
+        }
+
+        // No error in getting the song
+        else{
+          let dislikes = results[0]['dislikes'];
+          dislikes += 1;
+          connection.query(`UPDATE songs SET dislikes = ${dislikes} WHERE (SongID = '${songid}')`, function (err, results, fields) {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ error: 'Internal Server Error' });
+            }
+            
+            return res.status(200).json({ dislikes: dislikes });
+
+          });
+          
+        }
+
+        // res.json(results); // Send result as JSON
+    });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+
 });

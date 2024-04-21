@@ -11,7 +11,7 @@ export const MusicContext = createContext(null);
 
 async function fetchSongs() {
   try {
-    const response = await fetch("http://localhost:3000/songs?Query=select a.name , al.title as album, s.url, s.title ,s.duration,s.songid from artist a join songs s on a.artistid = s.artistid join albums al on s.albumid=al.albumid");
+    const response = await fetch("http://localhost:3000/songs?Query=select a.name , al.title as album, s.url, s.title ,s.duration,s.songid, s.likes, s.dislikes from artist a join songs s on a.artistid = s.artistid join albums al on s.albumid=al.albumid");
     if (!response.ok) {
       throw new Error(`Error fetching songs: ${response.statusText}`);
     }
@@ -38,25 +38,49 @@ async function setLike(song) {
       },
       body: JSON.stringify(song), // body data type must match "Content-Type" header
     });
-    
-    console.log(response);
+    const data = await response.json();
+    document.getElementById(`likes_${song['songid']}`).innerHTML = "Likes : " + data['likes'];
+    // console.log(data['likes']);
     // return response.json(); 
   } catch (error) {
     console.error("Error fetching songs:", error);
     // Handle error gracefully, e.g., display an error message to the user
-    return [];
+    return 0;
   }
 }
 
 
+async function setDislike(song) {
+
+  try {
+    const response = await fetch('http://localhost:3000/dislike', {
+      method: "POST", // *GET, POST, PUT, DELETE, etc.
+      mode: "cors", // no-cors, *cors, same-origin
+      headers: {
+        "Content-Type": "application/json",
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: JSON.stringify(song), // body data type must match "Content-Type" header
+    });
+    const data = await response.json();
+    document.getElementById(`dislikes_${song['songid']}`).innerHTML = "Dislikes : " + data['dislikes'];
+    // console.log(data['likes']);
+    // return response.json(); 
+  } catch (error) {
+    console.error("Error fetching songs:", error);
+    // Handle error gracefully, e.g., display an error message to the user
+    return 0;
+  }
+}
+
 function convertSecondstoTime(t=0) {
 
-  let dateObj = new Date(t * 1000);
-  let hours = dateObj.getUTCHours();
-  let minutes = dateObj.getUTCMinutes();
-  let seconds = dateObj.getSeconds();
+  const dateObj = new Date(t * 1000);
+  const hours = dateObj.getUTCHours();
+  const minutes = dateObj.getUTCMinutes();
+  const seconds = dateObj.getSeconds();
 
-  let timeString = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+  const timeString = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
 
   return timeString;
 }
@@ -101,7 +125,7 @@ function Songs() {
     <div data-bs-spy="scroll" data-bs-target="#song-list" data-bs-offset={0} className="container" tabIndex={0}>
       {/* Set target for potential scrolling */}
       {songs.map((song) => (
-        <div className="card m-2 row" key={song['title']}>
+        <div className="card m-2 row" key={song['songid']}>
           <h3 className="card-title mt-2" onClick={() => setUrl(song['url'])}>
             {song['title']}
           </h3> {/* Use h3 for song title */}
@@ -127,15 +151,18 @@ function Songs() {
                   <div className="row vol-ctr d-flex justify-content-around">
                     
                     <div className="col ml ms-2 like m-4">
-                      <h5> Likes</h5>
+                      <h5 id={"likes_"+song['songid']}> Likes : {song['likes']}</h5>
                       <button type="button" className="btn btn-primary" onClick={()=>{
                         setLike(song);
-                      }}>Like</button>
+
+                      }}>Like</button> 
                     </div>
 
-                    <div className="col ml ms-2 dislike m-4">
-                      <h5>Dislikes</h5>
-                      <button type="button" className="btn btn-primary">Dislike</button>
+                    <div className="col ml ms-2 dislike m-4" >
+                      <h5 id={"dislikes_"+song['songid']}>Dislikes : {song['dislikes']}</h5>
+                      <button type="button" className="btn btn-primary" onClick={()=>{
+                        setDislike(song);
+                      }}>Dislike</button>
                     </div>
                   </div>
 

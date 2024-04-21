@@ -9,20 +9,20 @@ import Player from "./Player";
 
 async function fetchArtist() {
   try {
-    const album_title = await fetch("http://localhost:3000/songs?Query=select a.name,al.title from ALBUMS al join ARTIST a on a.ARTISTID = al.ARTISTID;");
-    const songs = await fetch("http://localhost:3000/songs?Query=select s.title,a.name,s.url from songs s join artist a on s.ARTISTID = a.ARTISTID;");
-    if (!album_title.ok) {
-      throw new Error(`Error fetching songs: ${album_title.statusText}`);
-    }
+    // const album_title = await fetch("http://localhost:3000/songs?Query=select a.name,al.title from ALBUMS al join ARTIST a on a.ARTISTID = al.ARTISTID;");
+    const songs = await fetch("http://localhost:3000/songs?Query=select s.title,a.name,s.url, a.artistid , al.Title as albumt from songs s join artist a on s.ARTISTID = a.ARTISTID join albums al on al.ArtistID = a.ArtistID order by a.ARTISTID");
+    // if (!album_title.ok) {
+    //   throw new Error(`Error fetching songs: ${album_title.statusText}`);
+    // }
     if (!songs.ok) {
       throw new Error(`Error fetching songs: ${songs.statusText}`);
     }
     const data1 = await songs.json();
     console.log(data1);
     return data1;
-    const data2 = await album_title.json();
-    console.log(data2);
-    return data2;
+    // const data2 = await album_title.json();
+    // console.log(data2);
+    // return data2;
   } catch (error) {
     console.error("Error fetching songs:", error);
     // Handle error gracefully, e.g., display an error message to the user
@@ -59,9 +59,9 @@ function Artists() {
   console.log(artist);
 
   const groupedData = artist.reduce((acc, row) => {
-    const artistId = row[0];
-    acc[artistId] = acc[artistId] || { artist: row.slice(4, 6), songs: [] };
-    acc[artistId].songs.push(row.slice(1, 4)); // Song data (albumId, songId, title)
+    const artistId = row['artistid'];
+    acc[artistId] = acc[artistId] || { artist: Object.assign({}, row, Object.keys(row).slice(4, 6)), songs: [] };
+    acc[artistId].songs.push(Object.assign({}, row, Object.keys(row).slice(1, 4))); // Song data (albumId, songId, title)
     return acc;
   }, []);
 
@@ -75,11 +75,12 @@ function Artists() {
     <div>
       {Object.entries(groupedData).map(([artistId, { artist, songs }]) => (
         <div key={i++} className="card mb-3">
-          <div className="card-header">{`Artist: ${artist[0]}`}</div>
+          <div className="card-header">{`Artist : ${artist['name']}`}</div>
           <ul className="list-group list-group-flush">
             {songs.map((song) => (
-              <li key={j++} className="list-group-item m-2" onClick={()=>{setUrl(song[1])}}>
-                {song[2]} - Album : {artist[1]}
+              <li key={j++} className="list-group-item m-2 title" onClick={()=>{setUrl(song['url'])}}>
+                Song - {song['title']}
+                <h6>Album : {artist['albumt']}</h6>
               </li>
             ))}
           </ul>
