@@ -1,16 +1,20 @@
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import SearchComponent from "./Search";
 import { MusicContext } from "./Songs";
 import Player from "./Player";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "./UserContext";
 
 
 // Context provider component
+const ip = 'localhost';
+const port = 30000;
 
 async function fetchArtist() {
   try {
     // const album_title = await fetch("http://localhost:3000/songs?Query=select a.name,al.title from ALBUMS al join ARTIST a on a.ARTISTID = al.ARTISTID;");
-    const songs = await fetch("http://localhost:3000/songs?Query=select s.title,a.name,s.url, a.artistid , al.Title as albumt from songs s join artist a on s.ARTISTID = a.ARTISTID join albums al on al.ArtistID = a.ArtistID order by a.ARTISTID");
+    const songs = await fetch(`http://${ip}:${port}/songs?Query=select s.title,a.name,s.url, a.artistid , al.Title as albumt from songs s join artist a on s.ARTISTID = a.ARTISTID join albums al on al.ArtistID = a.ArtistID order by a.ARTISTID`);
     // if (!album_title.ok) {
     //   throw new Error(`Error fetching songs: ${album_title.statusText}`);
     // }
@@ -18,7 +22,7 @@ async function fetchArtist() {
       throw new Error(`Error fetching songs: ${songs.statusText}`);
     }
     const data1 = await songs.json();
-    console.log(data1);
+    // console.log(data1);
     return data1;
     // const data2 = await album_title.json();
     // console.log(data2);
@@ -34,11 +38,19 @@ function Artists() {
   const [artist, setArtist] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const user = useContext(UserContext);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       setError(null);
+
+      if(!user['Login']){ 
+        alert("Redirecting to login");
+        navigate('/login', { replace: true });
+      }
 
       try {
         const fetchedArtist = await fetchArtist();
@@ -56,7 +68,7 @@ function Artists() {
   // const [url, setUrl] = useState("");
   
   const [url, setUrl] = useState("");
-  console.log(artist);
+  // console.log(artist);
 
   const groupedData = artist.reduce((acc, row) => {
     const artistId = row['artistid'];
@@ -67,6 +79,8 @@ function Artists() {
 
   let i=0;
   let j=0;
+
+  let isArtist = user['UserType']==='artist' ? true : false;
   return (
     <>
     <div className="display-1 ">
@@ -86,6 +100,21 @@ function Artists() {
           </ul>
         </div>
       ))}
+
+      {
+      isArtist?
+      <div>
+
+      <button className='btn btn-primary fixed-bottom m-2 ' style={{width:40}} onClick={
+        ()=>{
+          alert("Add Song");
+        }
+      
+      }>+</button>
+      </div>
+      :''
+      }
+
     </div>
       <MusicContext.Provider value={url}>
         <Player url={url}/>

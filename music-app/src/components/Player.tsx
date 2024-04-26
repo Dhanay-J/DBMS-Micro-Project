@@ -8,7 +8,7 @@ const Player = () => {
   
   return (
     <>
-      <div className="d-flex justify-content-center fixed-bottom m-3">
+      <div className="d-flex justify-content-center fixed-bottom m-3" style={{zIndex:2, position:'fixed'}}>
         <ReactAudioPlayer
           src={url}
           volume={0.2}

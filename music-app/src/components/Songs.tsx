@@ -1,22 +1,26 @@
 import SearchComponent from "./Search.tsx";
-import { useState, useEffect ,createContext} from "react";
+import { useState, useEffect ,createContext, useContext} from "react";
 import music from "../assets/music.jpg";
 import Player from "./Player.tsx";
+import { UserContext } from "./UserContext.tsx";
+import { useNavigate } from "react-router-dom";
 
 export const MusicContext = createContext(null);
 
 
 // let data = {"rows":[]};
 // let songs = [];
+const ip = 'localhost';
+const port = 30000;
 
 async function fetchSongs() {
   try {
-    const response = await fetch("http://localhost:3000/songs?Query=select a.name , al.title as album, s.url, s.title ,s.duration,s.songid, s.likes, s.dislikes from artist a join songs s on a.artistid = s.artistid join albums al on s.albumid=al.albumid");
+    const response = await fetch(`http://${ip}:${port}/songs?Query=select a.name , al.title as album, s.url, s.title ,s.duration,s.songid, s.likes, s.dislikes from artist a join songs s on a.artistid = s.artistid join albums al on s.albumid=al.albumid`);
     if (!response.ok) {
       throw new Error(`Error fetching songs: ${response.statusText}`);
     }
     const data = await response.json();
-    console.log(data);
+    // console.log(data);
     return data;
   } catch (error) {
     console.error("Error fetching songs:", error);
@@ -29,7 +33,7 @@ async function fetchSongs() {
 async function setLike(song) {
 
   try {
-    const response = await fetch('http://localhost:3000/like', {
+    const response = await fetch(`http://${ip}:${port}/like`, {
       method: "POST", // *GET, POST, PUT, DELETE, etc.
       mode: "cors", // no-cors, *cors, same-origin
       headers: {
@@ -53,7 +57,7 @@ async function setLike(song) {
 async function setDislike(song) {
 
   try {
-    const response = await fetch('http://localhost:3000/dislike', {
+    const response = await fetch(`http://${ip}:${port}/dislike`, {
       method: "POST", // *GET, POST, PUT, DELETE, etc.
       mode: "cors", // no-cors, *cors, same-origin
       headers: {
@@ -89,11 +93,20 @@ function Songs() {
   const [songs, setSongs] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  const user = useContext(UserContext);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       setError(null);
+
+      if(!user['Login']){ 
+        alert("Redirecting to login");
+        navigate('/login', { replace: true });
+      }
 
       try {
         const fetchedSongs = await fetchSongs();
@@ -165,10 +178,7 @@ function Songs() {
                       }}>Dislike</button>
                     </div>
                   </div>
-
                 </div>
-
-                
               </div>
             </div>
           </div>

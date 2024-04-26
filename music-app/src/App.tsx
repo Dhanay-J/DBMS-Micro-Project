@@ -6,27 +6,32 @@ import PlayLists from './components/PlayLists.tsx'
 import Artists from './components/Artists.tsx'
 import MusicNavbar from './components/Navbar.tsx'
 import Player from './components/Player.tsx'
-import { useState, createContext } from 'react'
+import Login from './components/Login.tsx'
+import {  createContext,useContext ,useState } from 'react'
 
 export const MusicContext = createContext(null);
 
+import { UserContext } from './components/UserContext.tsx'
+
 function App() {
+  const [user, setUser] = useState({});
+
   
    return (
     <>
-    <MusicNavbar />
-  <div className='p-5'>
+
+      <MusicNavbar />
+      <div className='p-5'>
+      <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path='/player' element={<Player />} />
+      <Route path='/songs' element={<Songs />} />
+      <Route path='/playlists' element={<PlayLists />} />
+      <Route path='/artists' element={<Artists />} />
+      <Route path='/login' element={<Login />} />
       
-    <Routes>
-
-    <Route path="/" element={<Home />} />
-    <Route path='/player' element={<Player />} />
-    <Route path='/songs' element={<Songs />} />
-    <Route path='/playlists' element={<PlayLists />} />
-    <Route path='/artists' element={<Artists />} />
-    </Routes>
-  </div>
-
+      </Routes>
+    </div>
     
     </>
   )
