@@ -83,7 +83,6 @@ function convertSecondstoTime(t=0) {
   const hours = dateObj.getUTCHours();
   const minutes = dateObj.getUTCMinutes();
   const seconds = dateObj.getSeconds();
-
   const timeString = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
 
   return timeString;
@@ -186,7 +185,7 @@ function Songs() {
       ))}
     </div>
   )}
-  <SearchComponent fact={"Search Songs"} />
+  {/* <SearchComponent fact={"Search Songs"} /> */}
 </div>
 
     <MusicContext.Provider value={url}>

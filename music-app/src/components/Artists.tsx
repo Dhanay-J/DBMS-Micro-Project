@@ -5,6 +5,8 @@ import { MusicContext } from "./Songs";
 import Player from "./Player";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
+import AddSong from "./AddSong";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 // Context provider component
@@ -14,7 +16,7 @@ const port = 30000;
 async function fetchArtist() {
   try {
     // const album_title = await fetch("http://localhost:3000/songs?Query=select a.name,al.title from ALBUMS al join ARTIST a on a.ARTISTID = al.ARTISTID;");
-    const songs = await fetch(`http://${ip}:${port}/songs?Query=select s.title,a.name,s.url, a.artistid , al.Title as albumt from songs s join artist a on s.ARTISTID = a.ARTISTID join albums al on al.ArtistID = a.ArtistID order by a.ARTISTID`);
+    const songs = await fetch(`http://${ip}:${port}/songs?Query=select distinct s.title,a.name,s.url, a.artistid , al.Title as albumt from songs s join artist a on s.ARTISTID = a.ARTISTID join albums al on al.ArtistID = a.ArtistID order by a.ARTISTID`);
     // if (!album_title.ok) {
     //   throw new Error(`Error fetching songs: ${album_title.statusText}`);
     // }
@@ -40,7 +42,14 @@ function Artists() {
   const [error, setError] = useState(null);
   const user = useContext(UserContext);
 
+  const [addSongs, setAddSongs] = useState(false);
+
+  const togleAddSongs = () => {
+    setAddSongs(!addSongs);
+  }
+
   const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -104,13 +113,7 @@ function Artists() {
       {
       isArtist?
       <div>
-
-      <button className='btn btn-primary fixed-bottom m-2 ' style={{width:40}} onClick={
-        ()=>{
-          alert("Add Song");
-        }
-      
-      }>+</button>
+        <AddSong/>
       </div>
       :''
       }

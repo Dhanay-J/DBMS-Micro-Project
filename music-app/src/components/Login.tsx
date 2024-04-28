@@ -42,6 +42,7 @@ function Login() {
        user['Login'] = true;
         user['UserType'] = data['user']['UserType'];
         user['Username'] = data['user']['Username'];
+        user['UserID'] = data['user']['UserID'];
         user['Email'] = data['user']['Email'];
         navigate('/', { replace: true });
     }
