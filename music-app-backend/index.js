@@ -45,6 +45,8 @@ app.get('/songs', async (req, res) => {
 });
 
 
+
+
 app.post('/like', async (req, res) => {
 
   let songid = req.body['songid'];
@@ -199,6 +201,81 @@ app.post('/albums', async (req, res) => {
 
 });
 
+app.post('/deleteSong', async (req, res) => {
+
+  let userid = 0;
+  let songid = 0;
+  userid = req.body['UserID'];
+  songid = req.body['SongID'];
+
+  try {
+    connection.query(`SELECT ArtistID FROM music.artistuser a where a.UserID=${userid}`, function (err, results, fields) {
+      if (err) {
+          console.error(err);
+          return res.status(500).json({ success: false, error: 'Internal Server Error : Artist Not Found ' });
+      }
+
+      if(results.length == 0){
+        return res.status(404).json({ success: false, error: 'No User found' });
+      }
+
+      artistid = results[0]['ArtistID'];
+
+      connection.query(`DELETE FROM music.songs WHERE (SongID=${songid} and ArtistID=${artistid} )`, function (err, results, fields) {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ success: false, error: 'Internal Server Error : Deletion Failed ' });
+        }
+
+        if(!results.affectedRows){
+          return res.status(404).json({ success: false, error: 'No Song found' });
+        }
+        res.status(200).json({ success: true});
+      });
+
+    });
+  } catch (error) {
+        console.log(err);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+
+});
+
+app.post('/deleteAlbum', async (req, res) => {
+
+  let userid = 0;
+  let songid = 0;
+  userid = req.body['UserID'];
+  albumid = req.body['AlbumID'];
+
+  try {
+    connection.query(`SELECT ArtistID FROM music.artistuser a where a.UserID=${userid}`, function (err, results, fields) {
+      if (err) {
+          console.error(err);
+          return res.status(500).json({ success: false, error: 'Internal Server Error : Artist Not Found ' });
+      }
+
+      if(results.length == 0){
+        return res.status(404).json({ success: false, error: 'No User found' });
+      }
+
+      artistid = results[0]['ArtistID'];
+
+      connection.query(`DELETE FROM music.albums WHERE (AlbumID=${albumid} and ArtistID=${artistid} )`, function (err, results, fields) {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ success: false, error: 'Internal Server Error : Deletion Failed ' });
+        }
+        res.status(200).json({ success: true});
+      });
+
+    });
+  } catch (error) {
+        console.log(err);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+
+});
 
 app.post('/addSong', async (req, res) => {
 

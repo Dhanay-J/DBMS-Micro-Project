@@ -1,9 +1,10 @@
-import { useContext, useEffect, useState, useRef } from 'react';
-import { Form } from 'react-bootstrap';
+import { useContext, useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { UserContext } from './UserContext';
+import { Form } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 
 const ip = 'localhost';
@@ -11,123 +12,131 @@ const port = 30000;
 
 
 
-function convertSecondstoTime(t=0) {
-
-    const dateObj = new Date(t * 1000);
-    const hours = dateObj.getUTCHours();
-    const minutes = dateObj.getUTCMinutes();
-    const seconds = dateObj.getSeconds();
-  
-    const timeString = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
-  
-    return timeString;
-}
-
-
-
 function DeleteSong() {
-    const [show, setShow] = useState(false);
-    const user = useContext(UserContext);
+  const [show, setShow] = useState(false);
+  const user = useContext(UserContext);
 
   const [title, setTitle] = useState('');
   const [url, setUrl] = useState('');
-  const [explicit, setExplicit] = useState(false);
-  const [isNewAlbum, setIsNewAlbum] = useState(false);  
-  const [album, setAlbum] = useState("");
-  const [albums, setAlbums] = useState([]);
-  const [date, setDate] = useState('');
-  const [albumImg, setAlbumImg] = useState('');
-
-
-  async function getSongDuration() {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
   
-    const newSong = await fetch(url);
-    try {
-      const audioBuffer = await audioContext.decodeAudioData(await newSong.arrayBuffer());
-      const d = Math.ceil(audioBuffer.duration);
-      return d;  // Optional: Return the duration for further use
-    } catch (error) {
-       // Or handle error differently
-      return 0;   // Optional: Return a default value on error
-    }
-    
-  }
-   
+  const [song, setSong] = useState("");
+  const [songId, setSongID] = useState(0);
+  const [songs, setSongs] = useState([]);
+
+  const [isAlbum, setIsAlbum] = useState(false);
+  const [album, setAlbum] = useState("");
+  const [albumId, setAlbumID] = useState(0);
+  const [albums, setAlbums] = useState([]);
+
+  const navigate = useNavigate();
 
 
     async function handleSubmit(e) {
         e.preventDefault();
-        if (title === '' || url === '' || album === '') {
-            alert('Please fill all fields');
+
+        if(isAlbum){
+          // console.log(album, albumId);
+          if(!albumId){
+            alert('Please Select an Album');
             return;
+          }
+           const res = await fetch(`http://${ip}:${port}/deleteAlbum`, {
+              method: 'POST',
+              headers: {
+                  Accept: 'application/json',
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                  UserID: user['UserID'],
+                  AlbumID: albumId
+                  
+              }),
+          });
+          const data = await res.json();
+            if(data['success']){
+                alert('Album Removed Successfully');
+                handleClose(); // Close Modal After Song Removal
+            }else{
+                alert('Album Removal Failed');
+            }
+
+        }else{
+          // console.log(song, songId);
+          if(!songId){
+            alert('Please Select a Song');
+            return;
+          }
+           const res = await fetch(`http://${ip}:${port}/deleteSong`, {
+              method: 'POST',
+              headers: {
+                  Accept: 'application/json',
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                  UserID: user['UserID'],
+                  SongID: songId
+              }),
+          });
+          const data = await res.json();
+          console.log("Data ", data);
+
+            if(data['success']){
+                alert('Song Removed Successfully');
+                handleClose(); // Close Modal After Song Removal
+            }else{
+                alert('Song Removal Failed');
+            }
         }
 
-      const duration = await getSongDuration();
-      
-      
-
-      if(!(duration>0)){
-        alert('File Not Found or Supported');
-        return;
-      }
-
-        const res = await fetch(`http://${ip}:${port}/`, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                Title: title,
-                URL: url,
-                Explicit: explicit,
-                AlbumTitle: album,
-                UserID: user['UserID'],
-                Duration: duration,
-                ReleaseDate: date,
-                ImageURL: albumImg
-            }),
-        });
-
-      const data = await res.json();
-      // console.log(title, url, explicit, album, user['Username'], user['UserID'], duration, albumImg, date,"Result " ,);
-        if(data['success']){
-            alert('Song Added Successfully');
-            handleClose();
-        }
 }
 
   function handleClose() {
     setTitle('');
     setUrl('');
-    setExplicit(false);
-    setAlbum('');
-    setDate('');
-    setIsNewAlbum(false);
+    setSongID(0);
+    setSong("");
+    setIsAlbum(false);
+    setAlbumID(0);
+    setAlbum("");
     document.getElementsByTagName('form')[0].reset();
     setShow(false);
   }
 
   const handleShow = () => setShow(true);
 
-  async function getAlbums(){
+  async function fetchSongs() {
+    try {
 
-      const albums = await fetch(`http://${ip}:${port}/songs?Query=select a.name , al.title as album, s.url, s.title ,s.duration,s.songid, s.likes, s.dislikes from artist a join songs s on a.artistid = s.artistid join albums al on s.albumid=al.albumid`, {
-                method: 'POST',
-                headers: {
-                  Accept: 'application/json',
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  UserID: user['UserID'],
-                }),
-              });
-        const data = await albums.json();
-        // console.log(data);
-        setAlbums(data);
-        return;
+
+      const response = await fetch(`http://${ip}:${port}/songs?Query=select s.title ,s.songid, s.ArtistID from songs s where s.ArtistID in (SELECT a.ArtistID FROM music.artistuser a where a.UserID=${user['UserID']})`);
+      if (!response.ok) {
+        throw new Error(`Error fetching songs: ${response.statusText}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching songs:", error);
+      // Handle error gracefully, e.g., display an error message to the user
+      return [];
     }
+  }
+
+  async function fetchAlbums() {
+    try {
+
+
+      const response = await fetch(`http://${ip}:${port}/songs?Query=SELECT Title , AlbumID, ArtistID FROM music.albums al where al.ArtistID in (SELECT a.ArtistID FROM music.artistuser a where a.UserID=${user['UserID']})`);
+      if (!response.ok) {
+        throw new Error(`Error fetching songs: ${response.statusText}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching songs:", error);
+      // Handle error gracefully, e.g., display an error message to the user
+      return [];
+    }
+  }
 
     useEffect(() => {
         const fetchData = async () => {
@@ -138,7 +147,13 @@ function DeleteSong() {
           }
     
           try {
-            const fetched_albums = await getAlbums();
+            const fetched_songs = await fetchSongs();
+            if(fetched_songs){
+                setSongs(Array.isArray(fetched_songs.rows) ? fetched_songs.rows : fetched_songs);
+            }
+
+            const fetched_albums = await fetchAlbums();
+            
             if(fetched_albums){
                 setAlbums(Array.isArray(fetched_albums.rows) ? fetched_albums.rows : fetched_albums);
             }
@@ -150,7 +165,7 @@ function DeleteSong() {
         };
     
         fetchData();
-      }, [user]);
+      }, [user, album, song]);
       let i = 0;
   return (
     < >
@@ -169,19 +184,79 @@ function DeleteSong() {
         
         <form onSubmit={handleSubmit}>
                      <div className='m-2 '>
+                        <div className='mb-3 p-3'>
+                          <Form.Check // prettier-ignore
+                              type="switch"
+                              id="isalbum"
+                              label="Delete Album"
+                              onChange={(e)=>{
+                              setIsAlbum(e.target.checked);
+                          }}/>
+
+                      </div>
+
+
                         <Dropdown>
                             <Dropdown.Toggle variant="success" id="dropdown-basic">
-                                Your Albums
+                                {isAlbum ? 'Your Albums': 'Your Songs'}
                             </Dropdown.Toggle>
-                            <Dropdown.Menu key={i = i+1}>
-                                {albums.map((album, j)=>(
-                                    <Dropdown.Item key={j} onClick={(e)=>{setAlbum(e.target.text)}}>{album['Title']}</Dropdown.Item>
-                                ))}                                
-                            </Dropdown.Menu>
-                        </Dropdown>
+                            
+                            {isAlbum ?(
+                              <div>
+                                <Dropdown.Menu key={i = i+1}>
+                                    
+                                    {albums.map((album_, j)=>(
+                                        
+                                        <Dropdown.Item key={j} onClick={(e)=>{
+                                          
+                                          setAlbum(album_['Title']);
+                                          setAlbumID(albums[j]['AlbumID'])
+                                          
+                                        }}
+                                        >{album_['Title']}</Dropdown.Item>
+                                    ))
+                                    }                                
+                                </Dropdown.Menu>
+                              </div>
+                            ):(
+                              <div>
+                                <Dropdown.Menu key={i = i+1}>
+                                    
+                                    {songs.map((song_, j)=>(
+                                        
+                                        <Dropdown.Item key={j} onClick={(e)=>{
+                                          
+                                          setSong(song_['title']);
+                                          setSongID(songs[j]['songid'])
+                                          
+                                        }}
+                                        >{song_['title']}</Dropdown.Item>
+                                    ))
+                                    }                                
+                                </Dropdown.Menu>
+                              </div>
+                              )}
+                            </Dropdown>
+
                      </div>
-                <button className='btn btn-danger' >Delete Song</button>
+                <button className='btn btn-danger' >Delete {isAlbum ? 'Album' : 'Song'}</button>
             </form>
+
+
+            {isAlbum ? 
+                (!album ?
+                    <div className='p-2' >Album Not Selected</div>
+                    :
+                  <div className='p-2'>Selected Album: {album}</div>
+                )
+                :
+                (!song ?
+                <div className='p-2' >Song Not Selected</div>
+                :
+                <div className='p-2'>Selected Song: {song}</div>
+                )
+              }
+
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>

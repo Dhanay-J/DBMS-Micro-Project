@@ -4,6 +4,7 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { UserContext } from './UserContext';
+import { useNavigate } from 'react-router-dom';
 
 
 const ip = 'localhost';
@@ -34,9 +35,12 @@ function AddSong() {
   const [explicit, setExplicit] = useState(false);
   const [isNewAlbum, setIsNewAlbum] = useState(false);  
   const [album, setAlbum] = useState("");
+  const [albumID, setAlbumID] = useState("");
   const [albums, setAlbums] = useState([]);
   const [date, setDate] = useState('');
   const [albumImg, setAlbumImg] = useState('');
+
+  const navigate = useNavigate();
 
 
   async function getSongDuration() {
@@ -83,6 +87,7 @@ function AddSong() {
                 URL: url,
                 Explicit: explicit,
                 AlbumTitle: album,
+                AlbumID: albumID,
                 UserID: user['UserID'],
                 Duration: duration,
                 ReleaseDate: date,
@@ -131,7 +136,7 @@ function AddSong() {
 
     useEffect(() => {
         const fetchData = async () => {
-    
+          
           if(!user['Login']){ 
             alert("Redirecting to login");
             navigate('/login', { replace: true });
@@ -229,7 +234,10 @@ function AddSong() {
 
                             <Dropdown.Menu key={i = i+1}>
                                 {albums.map((album, j)=>(
-                                    <Dropdown.Item key={j} onClick={(e)=>{setAlbum(e.target.text)}}>{album['Title']}</Dropdown.Item>
+                                    <Dropdown.Item key={j} onClick={(e)=>{
+                                      setAlbum(e.target.text) ; 
+                                      setAlbumID(albums[j]['AlbumID'])}}>{album['Title']}
+                                    </Dropdown.Item>
                                 ))}                                
                             </Dropdown.Menu>
                             </Dropdown>

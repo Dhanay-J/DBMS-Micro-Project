@@ -16,23 +16,15 @@ const port = 30000;
 
 async function fetchArtist() {
   try {
-    // const album_title = await fetch("http://localhost:3000/songs?Query=select a.name,al.title from ALBUMS al join ARTIST a on a.ARTISTID = al.ARTISTID;");
     const songs = await fetch(`http://${ip}:${port}/songs?Query=select distinct s.title,a.name, s.url, a.artistid , al.Title as albumt from songs s join artist a on a.ArtistID = s.ArtistID join albums al on s.AlbumID = al.AlbumID  order by a.ArtistID`);
-    // if (!album_title.ok) {
-    //   throw new Error(`Error fetching songs: ${album_title.statusText}`);
-    // }
     if (!songs.ok) {
       throw new Error(`Error fetching songs: ${songs.statusText}`);
     }
-    const data1 = await songs.json();
-    // console.log(data1);
-    return data1;
-    // const data2 = await album_title.json();
-    // console.log(data2);
-    // return data2;
+    const data = await songs.json();
+    return data;
+    
   } catch (error) {
     console.error("Error fetching songs:", error);
-    // Handle error gracefully, e.g., display an error message to the user
     return [];
   }
 }
@@ -90,7 +82,7 @@ function Artists() {
   let i=0;
   let j=0;
   
-  let isArtist = user['UserType']==='artist' ? true : false;
+  const isArtist = user['UserType']==='artist' ? true : false;
   return (
     <>
     <div className="display-1 ">
