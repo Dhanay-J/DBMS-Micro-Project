@@ -5,6 +5,7 @@ import { MusicContext } from './Songs';
 const Player = () => {
 
   const url = useContext(MusicContext);
+ 
   
   return (
     <>
@@ -16,6 +17,8 @@ const Player = () => {
           controls
           className="w-80"
         />
+
+        
       </div>
     </>
   );

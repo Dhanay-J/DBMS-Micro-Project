@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
 import AddSong from "./AddSong";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import DeleteSong from "./DeleteSong";
 
 
 // Context provider component
@@ -16,7 +17,7 @@ const port = 30000;
 async function fetchArtist() {
   try {
     // const album_title = await fetch("http://localhost:3000/songs?Query=select a.name,al.title from ALBUMS al join ARTIST a on a.ARTISTID = al.ARTISTID;");
-    const songs = await fetch(`http://${ip}:${port}/songs?Query=select distinct s.title,a.name,s.url, a.artistid , al.Title as albumt from songs s join artist a on s.ARTISTID = a.ARTISTID join albums al on al.ArtistID = a.ArtistID order by a.ARTISTID`);
+    const songs = await fetch(`http://${ip}:${port}/songs?Query=select distinct s.title,a.name, s.url, a.artistid , al.Title as albumt from songs s join artist a on a.ArtistID = s.ArtistID join albums al on s.AlbumID = al.AlbumID  order by a.ArtistID`);
     // if (!album_title.ok) {
     //   throw new Error(`Error fetching songs: ${album_title.statusText}`);
     // }
@@ -88,7 +89,7 @@ function Artists() {
 
   let i=0;
   let j=0;
-
+  
   let isArtist = user['UserType']==='artist' ? true : false;
   return (
     <>
@@ -103,7 +104,7 @@ function Artists() {
             {songs.map((song) => (
               <li key={j++} className="list-group-item m-2 title" onClick={()=>{setUrl(song['url'])}}>
                 Song - {song['title']}
-                <h6>Album : {artist['albumt']}</h6>
+                <h6>Album : {song['albumt']}</h6>
               </li>
             ))}
           </ul>
@@ -112,9 +113,11 @@ function Artists() {
 
       {
       isArtist?
-      <div>
-        <AddSong/>
-      </div>
+        <div>
+          <AddSong/>
+          <DeleteSong/>
+        </div>
+      
       :''
       }
 

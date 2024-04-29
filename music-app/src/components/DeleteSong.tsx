@@ -25,7 +25,7 @@ function convertSecondstoTime(t=0) {
 
 
 
-function AddSong() {
+function DeleteSong() {
     const [show, setShow] = useState(false);
     const user = useContext(UserContext);
 
@@ -72,7 +72,7 @@ function AddSong() {
         return;
       }
 
-        const res = await fetch(`http://${ip}:${port}/addSong`, {
+        const res = await fetch(`http://${ip}:${port}/`, {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -113,7 +113,7 @@ function AddSong() {
 
   async function getAlbums(){
 
-      const albums = await fetch(`http://${ip}:${port}/albums`, {
+      const albums = await fetch(`http://${ip}:${port}/songs?Query=select a.name , al.title as album, s.url, s.title ,s.duration,s.songid, s.likes, s.dislikes from artist a join songs s on a.artistid = s.artistid join albums al on s.albumid=al.albumid`, {
                 method: 'POST',
                 headers: {
                   Accept: 'application/json',
@@ -153,99 +153,35 @@ function AddSong() {
       }, [user]);
       let i = 0;
   return (
-    <>
-      <Button variant="primary m-2 fixed-bottom" onClick={handleShow} style={{width:120}}>
-        Add Song
+    < >
+
+      <div className='fixed-bottom m-2'>
+
+      <Button variant="danger" onClick={handleShow} style={{width:120, position:'absolute', bottom:'0', right:'0' }}>
+        Delete Song
       </Button>
 
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Add New Song</Modal.Title>
+          <Modal.Title>Delete Song</Modal.Title>
         </Modal.Header>
         <Modal.Body>
         
         <form onSubmit={handleSubmit}>
-              
-                <div className='mb-3'>
-                    <label>Title</label>
-                    <input placeholder='Enter Song Title' defaultValue={'ss'} className='form-control' onChange={e => setTitle(e.target.value.trim())}/>
-                </div>
-                <div className='mb-3'>
-                    <label >URL</label>
-                    <input type="text" defaultValue={'/src/assets/songs/Gods Plan..mp3'} placeholder='Enter Song Url' className='form-control' onChange={(e) => {
-                        setUrl(e.target.value.trim());
-                        
-                        }}/>
-                </div>
-                <div className='mb-3 p-3'>
-                    <Form.Check // prettier-ignore
-                        type="switch"
-                        id="explicit"
-                        label="Explicit"
-                    onChange={(e)=>{setExplicit(e.target.checked)}}/>
-                </div>
-                <div className='mb-3 p-3'>
-                    <Form.Check // prettier-ignore
-                        type="switch"
-                        id="album"
-                        label="New Album"
-                    onChange={(e)=>{setIsNewAlbum(e.target.checked)}}/>
-                </div>
-                {isNewAlbum? (
-
-                     <div className='mb-3'>
-                     <label >Album Name</label>
-                     <input type="text" placeholder='Album' className='form-control mt-2' onChange={(e) => {
-                        for(let i=0; i<albums.length; i++){
-                            if(albums[i]['Title']===e.target.value.trim()){
-                                alert("Album ( "+ albums[i]['Title'] +" ) Already Exists");
-                                e.target.value = album;
-                                return;
-                            }
-                        }
-                        setAlbum(e.target.value.trim());
-                     }}/>
-                     
-                     <label className='mt-2'>Album Release Date</label>
-                     <Form.Control type='date' className='mt-3' onChangeCapture={(e)=>{                      
-                       setDate( new Date(e.target.value).toLocaleDateString("en-GB").replace(/\//g , '-'));
-                      }}>
-                     </Form.Control>
-
-                     <label >Album Thumbnail URL</label>
-                     <input type="text" placeholder='Album Thumbnail' className='form-control mt-2' onChange={(e) => {
-                        setAlbumImg(e.target.value.trim());
-                     }}/>
-
-                     </div> 
-                )
-                     : (
-                        
                      <div className='m-2 '>
                         <Dropdown>
                             <Dropdown.Toggle variant="success" id="dropdown-basic">
                                 Your Albums
                             </Dropdown.Toggle>
-
                             <Dropdown.Menu key={i = i+1}>
                                 {albums.map((album, j)=>(
                                     <Dropdown.Item key={j} onClick={(e)=>{setAlbum(e.target.text)}}>{album['Title']}</Dropdown.Item>
                                 ))}                                
                             </Dropdown.Menu>
-                            </Dropdown>
+                        </Dropdown>
                      </div>
-                     )
-                }
-                {!album ? 
-                <div className='p-2' >Album Not Selected</div>:
-                <div className='p-2'>Selected Album: {album}</div>
-                }
-
-
-
-                <button className='btn btn-success' >Add Song</button>
+                <button className='btn btn-danger' >Delete Song</button>
             </form>
-        
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
@@ -253,8 +189,9 @@ function AddSong() {
           </Button>
         </Modal.Footer>
       </Modal>
+      </div>
     </>
   );
 }
 
-export default AddSong;
+export default DeleteSong;
