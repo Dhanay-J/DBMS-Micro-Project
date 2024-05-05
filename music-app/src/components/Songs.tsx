@@ -118,6 +118,7 @@ function Songs() {
       });
       const data = await response.json();
       document.getElementById(`likes_${song['songid']}`).innerHTML = "Likes : " + data['likes'];
+      document.getElementById(`dislikes_${song['songid']}`).innerHTML = "Dislikes : " + data['dislikes'];
       // fetchSongs();
 
       // console.log(data['likes']);

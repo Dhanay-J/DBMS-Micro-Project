@@ -61,11 +61,11 @@ app.post('/like', async (req, res) => {
         return res.status(502).json({ likes: likes, error: 'Internal Server Error :: ' + err });
       
       }
-      likes = likeCount[0]['c'];
+      likes = likeCount[0]?likeCount[0]['c']:0;
 
       connection.query(`select count(*) c from dislikes where userid=${userid} and songid=${songid}`, function (err, dislikes, fields) {
       // Handle errors (consider prepared statements)
-      if (err) {
+      if (err || !dislikes[0]) {
         console.error(err.sqlMessage);
         return res.status(502).json({ likes: likes, error: 'Internal Server Error :: ' + err });
       
@@ -79,48 +79,59 @@ app.post('/like', async (req, res) => {
               }
         });
       }
-      connection.query(`select count(*) c from likes where userid=${userid} and songid=${songid}`, function (err, resultsLikes, fields) {
-        // Handle errors (consider prepared statements)
-        if (err) {
+
+
+      connection.query(`select count(*) c from dislikes where songid=${songid}`, function (err, resultsDislikes, fields) {
+        if(err || !resultsDislikes[0]){
           console.error(err.sqlMessage);
           return res.status(502).json({ likes: likes, error: 'Internal Server Error :: ' + err });
         }
-        if(resultsLikes[0]['c'] > 0){
-          connection.query(`delete from likes where userid=${userid} and songid=${songid}`, function (err, results, fields) {
-            // Handle errors (consider prepared statements)
-            if (err) {
-              console.error(err.sqlMessage);
-              return res.status(502).json({ likes: likes, error: 'Internal Server Error :: ' + err });
-            }
-            likes = likes - 1;
-            connection.query(`UPDATE songs SET likes = ${likes} WHERE (SongID = '${songid}')`, function (err, results, fields) {
+        let dislikes_=0;
+        dislikes_ = resultsDislikes[0]['c'];
+        connection.query(`select count(*) c from likes where userid=${userid} and songid=${songid}`, function (err, resultsLikes, fields) {
+          // Handle errors (consider prepared statements)
+          if (err) {
+            console.error(err.sqlMessage);
+            return res.status(502).json({ likes: likes, error: 'Internal Server Error :: ' + err });
+          }
+          if(resultsLikes[0]['c'] > 0){
+            connection.query(`delete from likes where userid=${userid} and songid=${songid}`, function (err, results, fields) {
+              // Handle errors (consider prepared statements)
               if (err) {
-                console.error(err);
-                // Consider returning an error or logging for consistency
+                console.error(err.sqlMessage);
+                return res.status(502).json({ likes: likes, error: 'Internal Server Error :: ' + err });
               }
-              return res.status(200).json({ likes: likes, error: 'Cannot Like a Liked Song' });
+              likes = likes - 1;
+              connection.query(`UPDATE songs SET likes = ${likes} WHERE (SongID = '${songid}')`, function (err, results, fields) {
+                if (err) {
+                  console.error(err);
+                  // Consider returning an error or logging for consistency
+                }
+                return res.status(200).json({ likes: likes,dislikes:dislikes_, error: 'Cannot Like a Liked Song' });
+              });
+            }
+          );
+  
+          }else{
+            connection.query(`insert into likes (userid, songid ) values (${userid},${songid}) `, function (err, results, fields) {
+              // Handle errors (consider prepared statements)
+              if (err) {
+                console.error(err.sqlMessage);
+                return res.status(502).json({ likes: likes, error: 'Internal Server Error :: ' + err });
+              }
+              likes = likes + 1;
+              connection.query(`UPDATE songs SET likes = ${likes} WHERE (SongID = '${songid}')`, function (err, results, fields) {
+                if (err) {
+                  console.error(err);
+                  // Consider returning an error or logging for consistency
+                }
+                return res.status(200).json({ likes: likes,dislikes:dislikes_ });
+              });
             });
           }
-        );
-
-        }else{
-          connection.query(`insert into likes (userid, songid ) values (${userid},${songid}) `, function (err, results, fields) {
-            // Handle errors (consider prepared statements)
-            if (err) {
-              console.error(err.sqlMessage);
-              return res.status(502).json({ likes: likes, error: 'Internal Server Error :: ' + err });
-            }
-            likes = likes + 1;
-            connection.query(`UPDATE songs SET likes = ${likes} WHERE (SongID = '${songid}')`, function (err, results, fields) {
-              if (err) {
-                console.error(err);
-                // Consider returning an error or logging for consistency
-              }
-              return res.status(200).json({ likes: likes });
-            });
-          });
-        }
+        });
       });
+
     });
   });
 
