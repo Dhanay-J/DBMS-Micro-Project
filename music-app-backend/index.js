@@ -50,36 +50,39 @@ app.get('/songs', async (req, res) => {
 app.post('/like', async (req, res) => {
 
   let songid = req.body['songid'];
+  let userid = req.body['userid'];
 
   // console.log('Received like request: ', songid);
   try {
     // songid = -1;
-    connection.query(`select likes from songs where songid=${songid}`, function (err, results, fields) {
+    connection.query(`select count(*) like_ , songid from likes 
+    group by songid`, function (err, results_, fields) {
         if (err) {
             console.error(err);
             return res.status(500).json({ error: 'Internal Server Error' });
         }
 
-        if(results.length == 0){
-          return res.status(404).json({ error: 'Song not found' });
+
+        for(let i=0; i<results_.length; i++){
+          if(results_[i]['songid'] == songid){
+            connection.query(`insert into likes (userid, songid ) values (${userid},${songid}) `, function (err, results, fields) {
+              if (err) {
+                  console.error(err);
+                  return res.status(500).json({ error: 'Internal Server Error :: ' + err });
+              }
+              // return res.status(200).json({ likes: results[i]['like_']+1 });
+            });
+            connection.query(`UPDATE songs SET likes = ${results_[i]['like_']+1} WHERE (SongID = '${songid}')`, function (err, results, fields) {
+              if (err) {
+                  console.error(err);
+                  return res.status(500).json({ error: 'Could Not Updare Like :: ' + err });
+              }
+             });
+  
+            return res.status(200).json({ likes: results_[i]['like_']+1 });
+
+          }
         }
-
-        // No error in getting the song
-        else{
-          let likes = results[0]['likes'];
-          likes += 1;
-          connection.query(`UPDATE songs SET likes = ${likes} WHERE (SongID = '${songid}')`, function (err, results, fields) {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({ error: 'Internal Server Error' });
-            }
-            
-            return res.status(200).json({ likes: likes });
-
-          });
-          
-        }
-
         // res.json(results); // Send result as JSON
     });
     } catch (err) {
@@ -135,6 +138,58 @@ app.post('/dislike', async (req, res) => {
 
 });
 
+app.post('/signup', async (req, res) => {
+
+  let email = '';
+  email = req.body['email'];
+  
+  let password = '' ;
+  password = req.body['password'];
+
+  let username = '';
+  username = req.body['username'];
+
+  let isArtist = false;
+  isArtist = req.body['artist'];
+
+  let isPremium = false;
+  isPremium = req.body['premium'];
+
+  try {
+    // songid = -1;
+    connection.query(`SELECT max(userid)+1 id FROM music.users;`, function (err, results, fields) {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ success: false, error: 'Internal Server Error' });
+        }
+
+        let userid = results[0]['id'];
+        // console.log("Pass+++ ", results[0]['Password'] , password)
+
+        
+        connection.query(`insert into users (userid, username, email, password, subscriptiontier, usertype) values (${userid}, '${username}', '${email}', '${password}', '${isPremium}', '${isArtist}')`, function (err, results, fields) {
+          if (err) {
+              console.error(err);
+              return res.status(500).json({ success: false, error: 'Internal Server Error' });
+          }
+
+          // User is created
+          res.status(200).json(
+            {
+              success: true,
+            }
+          );
+        });
+
+    });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+
+});
+
+
 app.post('/signin', async (req, res) => {
 
   let email = req.body['email'];
@@ -171,6 +226,254 @@ app.post('/signin', async (req, res) => {
     }
 
 });
+
+//playlists
+
+app.post('/numberofplaylists', async (req, res) => {
+
+  let userid = req.body['UserID'];
+
+  try {
+    // songid = -1;
+    connection.query(`select count(*) c from playlist where userid=${userid}`, function (err, results, fields) {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ success: false, error: 'Internal Server Error' });
+        }
+        
+        // Password is correct
+        res.status(200).json(
+          {
+            success: true,
+            count: results[0]['c']
+          }
+        );
+    });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+
+});
+
+
+app.post('/removePlaylist', async (req, res) => {
+
+  let userid = 0;
+  userid = req.body['UserID'];
+  
+  let songid = 0;
+  songid = req.body['SongID'];
+
+  let playlistid = 0;
+  playlistid = req.body['PlaylistID'];
+
+  let isPlaylist = true;
+  isPlaylist = req.body['isPlaylist'];
+
+
+  console.log('PlaylistID: ', playlistid, userid, '\n\n\n\n');
+  try {
+      // songid , name, playlistid, userid
+
+
+      // Check if Playlist exists
+      connection.query(`select count(*) c from playlist where PlaylistID=${playlistid} and userid=${userid}`, function (err, results, fields) {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ success: false, error: 'Internal Server Error : Songs Removal Failed' });
+        }
+        if(results[0]['c'] == 0){
+          return res.status(200).json({ success: true, error: 'No Playlist found for user' });
+        }
+      });
+
+
+      // Create and Add Song to Playlist
+      if(isPlaylist){
+
+        connection.query(`select song_id from playsong where playlists_id=${playlistid};`, function (err, results, fields) {
+          if (err) {
+              console.error(err);
+              return res.status(500).json({ success: false, error: 'Internal Server Error ' + err });
+          }
+          
+          // Remove all songs from playsong
+          for(let i=0; i<results.length; i++){
+              connection.query(`delete from playsong where playlists_id=${playlistid} and song_id=${results[i]['song_id']}`, function (err, results, fields) {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).json({ success: false, error: 'Internal Server Error : Songs Removal Failed' });
+                }
+                            
+              });
+          }
+
+          // Remove Playlist
+          connection.query(`delete from playlist where PlaylistID=${playlistid}`, function (err, results, fields) {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ success: false, error: 'Internal Server Error : Songs Removal Failed' });
+            }
+          
+            
+          });
+          
+              
+      });
+      }
+      // Remove Song from Playlist
+      else{
+          connection.query(`delete from playsong where playlists_id=${playlistid} and song_id=${songid}`, function (err, results, fields) {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ success: false, error: 'Internal Server Error : Song Removal Failed' });
+            }
+
+            // Check if Playlist is empty
+            connection.query(`select count(*) c from playsong where playlists_id=${playlistid}`, function (err, results, fields) {
+              if (err) {
+                  console.error(err);
+                  return res.status(500).json({ success: false, error: 'Internal Server Error : Song Removal Failed' });
+              }
+              // Remove Playlist if empty
+              if(results[0]['c'] == 0){
+                connection.query(`delete from playlist where PlaylistID=${playlistid}`, function (err, results, fields) {
+                  if (err) {
+                      console.error(err);
+                      return res.status(500).json({ success: false, error: 'Internal Server Error : Songs Removal Failed' });
+                  }
+                  // return res.status(200).json({ success: true});        
+                });
+              }
+            // Successfully removed song from playlist
+            
+            });
+          
+            
+          });
+        }
+
+        // Successfully removed song from playlist
+        return res.status(200).json({ success: true});        
+
+  } catch (err) {
+      console.log(err);
+      res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+
+});
+
+
+
+app.post('/addPlaylist', async (req, res) => {
+
+  let userid = 0;
+  userid = req.body['UserID'];
+  
+  let songid = 0;
+  songid = req.body['SongID'];
+
+  let playlistid = 0;
+  playlistid = req.body['PlaylistID'];
+
+  let description = '';
+  description = req.body['Description'];
+
+  let name = '';
+  name = req.body['PlaylistName'];
+
+
+  console.log('PlaylistID: ', playlistid, name, userid, '\n\n\n\n');
+  try {
+      // songid , name, playlistid, userid
+
+      // Create and Add Song to Playlist
+      if(playlistid == 0){
+
+        connection.query(`SELECT (max(playlistid))+1 id FROM music.playlist`, function (err, results, fields) {
+          if (err) {
+              console.error(err);
+              return res.status(500).json({ success: false, error: 'Internal Server Error ' + err });
+          }
+          
+          playlistid = results[0]['id'];
+
+          //Playlist creation
+          connection.query(`insert into playlist values (${playlistid}, ${userid} , '${name}', '${description}')`, function (err, results, fields) {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ success: false, error: 'Internal Server Error : Playlist Creation Failed' +err});
+            }
+            
+            // Add Song to Playlist
+            console.log('PlaylistID: ', playlistid, name, userid, '\n\n\n\n');
+            connection.query(`insert into playsong (song_id, playlists_id) values (${songid}, ${playlistid})`, function (err, results, fields) {
+              if (err) {
+                  console.error(err);
+                  return res.status(500).json({  success: false, error: 'Internal Server Error : Inserion Into Playlist Failed' });
+              }
+              
+              // Successfully added song to playlist
+              return res.status(200).json({ success: true});        
+              
+          });
+            
+        });
+              
+      });
+      }
+      // Add Song to Playlist
+      else{
+          connection.query(`insert into playsong (song_id, playlists_id) values (${songid}, ${playlistid})`, function (err, results, fields) {
+            if (err) {
+                console.error(err);
+                return res.status(230).json({ success: false, error: 'Internal Server Error : Playlist Creation Failed :: ' + err});
+            }
+          
+          // Successfully added song to playlist
+          return res.status(200).json({ success: true});        
+          
+      });
+
+      }
+
+  } catch (err) {
+      console.log(err);
+      res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+
+});
+
+
+
+app.post('/playlists', async (req, res) => {
+
+  let userid = req.body['UserID'];
+
+  try {
+    // songid = -1;
+    connection.query(`select playlistid, p.name from playlist p where UserID=${userid}`, function (err, results, fields) {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ success: false, error: 'Internal Server Error' });
+        }
+
+        if(results.length == 0){
+          return res.status(200).json({success: true,  error: 'No Playlist found' });
+        }
+
+        // Album(s) is/are present
+        res.status(200).json(results);
+    });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+
+});
+
+
 
 
 // select * from music.albums alb where alb.ArtistID in ( SELECT ArtistID FROM music.artistuser a where a.UserID=7 );
@@ -342,6 +645,7 @@ app.post('/addSong', async (req, res) => {
               if(results.length == 0){
                 return res.status(404).json({ success: false, error: 'No Album found' });
               }
+              
         
               if(results[0]['c']==0){
                 // Album is not present

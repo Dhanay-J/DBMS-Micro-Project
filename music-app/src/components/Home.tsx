@@ -5,7 +5,7 @@ import { UserContext } from "./UserContext";
 function Home() {
 
     const user = useContext(UserContext);
-
+  
     const navigate = useNavigate();
 
     useEffect(() => {

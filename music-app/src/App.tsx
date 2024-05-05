@@ -1,5 +1,5 @@
 // import { useState } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import Home from './components/Home.tsx'
 import Songs from './components/Songs.tsx'
 import PlayLists from './components/PlayLists.tsx'
@@ -7,34 +7,38 @@ import Artists from './components/Artists.tsx'
 import MusicNavbar from './components/Navbar.tsx'
 import Player from './components/Player.tsx'
 import Login from './components/Login.tsx'
-import {  createContext,useContext ,useState } from 'react'
-
-export const MusicContext = createContext(null);
-
-import { UserContext } from './components/UserContext.tsx'
+import { Provider } from 'react-redux'
+import { store } from './components/store.tsx'
+import Register from './components/Register.tsx'
 
 function App() {
-  const [user, setUser] = useState({});
-
+  
+        const loca = useLocation();
   
    return (
     <>
 
       <MusicNavbar />
-      <div className='p-5'>
-      <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path='/player' element={<Player />} />
-      <Route path='/songs' element={<Songs />} />
-      <Route path='/playlists' element={<PlayLists />} />
-      <Route path='/artists' element={<Artists />} />
-      <Route path='/login' element={<Login />} />
       
-      </Routes>
-    </div>
+      <Provider store={store}>
+
+        <div className='p-5'>
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path='/songs' element={<Songs />} />
+                <Route path='/playlists' element={<PlayLists />} />
+                <Route path='/artists' element={<Artists />} />
+                <Route path='/login' element={<Login />} />
+                <Route path='/register' element={<Register />} />
+            </Routes>
+            {loca.pathname == '/login' || loca.pathname === '/register' ? '' : <Player />}
+                
+        
+        </div>
+      </Provider>
     
     </>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -19,7 +19,6 @@ function DeleteSong() {
   const [title, setTitle] = useState('');
   const [url, setUrl] = useState('');
   
-  const [song, setSong] = useState("");
   const [songId, setSongID] = useState(0);
   const [songs, setSongs] = useState([]);
 
@@ -253,7 +252,7 @@ function DeleteSong() {
                 (!song ?
                 <div className='p-2' >Song Not Selected</div>
                 :
-                <div className='p-2'>Selected Song: {song}</div>
+                <div className='p-2'>Selected Song: {song['title']}</div>
                 )
               }
 

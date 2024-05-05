@@ -1,11 +1,16 @@
 import SearchComponent from "./Search.tsx";
-import { useState, useEffect ,createContext, useContext} from "react";
+import { useState, useEffect , useContext} from "react";
 import music from "../assets/music.jpg";
-import Player from "./Player.tsx";
 import { UserContext } from "./UserContext.tsx";
 import { useNavigate } from "react-router-dom";
+import { setURL, setPlaylistData } from './reducer';
+import { useDispatch, useSelector } from 'react-redux';
+import AddPlaylist from './AddPlaylist';
+import DeletePlaylist from "./DeletePlaylist.tsx";
 
-export const MusicContext = createContext(null);
+
+
+// eslint-disable-next-line react-hooks/rules-of-hooks
 
 
 // let data = {"rows":[]};
@@ -20,6 +25,10 @@ async function fetchSongs() {
       throw new Error(`Error fetching songs: ${response.statusText}`);
     }
     const data = await response.json();
+
+
+
+
     // console.log(data);
     return data;
   } catch (error) {
@@ -30,52 +39,11 @@ async function fetchSongs() {
 }
 
 
-async function setLike(song) {
-
-  try {
-    const response = await fetch(`http://${ip}:${port}/like`, {
-      method: "POST", // *GET, POST, PUT, DELETE, etc.
-      mode: "cors", // no-cors, *cors, same-origin
-      headers: {
-        "Content-Type": "application/json",
-        // 'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: JSON.stringify(song), // body data type must match "Content-Type" header
-    });
-    const data = await response.json();
-    document.getElementById(`likes_${song['songid']}`).innerHTML = "Likes : " + data['likes'];
-    // console.log(data['likes']);
-    // return response.json(); 
-  } catch (error) {
-    console.error("Error fetching songs:", error);
-    // Handle error gracefully, e.g., display an error message to the user
-    return 0;
-  }
-}
 
 
-async function setDislike(song) {
 
-  try {
-    const response = await fetch(`http://${ip}:${port}/dislike`, {
-      method: "POST", // *GET, POST, PUT, DELETE, etc.
-      mode: "cors", // no-cors, *cors, same-origin
-      headers: {
-        "Content-Type": "application/json",
-        // 'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: JSON.stringify(song), // body data type must match "Content-Type" header
-    });
-    const data = await response.json();
-    document.getElementById(`dislikes_${song['songid']}`).innerHTML = "Dislikes : " + data['dislikes'];
-    // console.log(data['likes']);
-    // return response.json(); 
-  } catch (error) {
-    console.error("Error fetching songs:", error);
-    // Handle error gracefully, e.g., display an error message to the user
-    return 0;
-  }
-}
+
+
 
 function convertSecondstoTime(t=0) {
 
@@ -88,14 +56,104 @@ function convertSecondstoTime(t=0) {
   return timeString;
 }
 
+
+
+
+
 function Songs() {
+
+
   const [songs, setSongs] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   
   const user = useContext(UserContext);
 
+
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  // const {song} = useSelector((state)=> state.song)
+
+  const fetchPlaylistsCount = async () => {
+
+    try {
+      // console.log("YYYYY",user['UserID']);
+      const response = await fetch(`http://${ip}:${port}/numberofplaylists`, {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: JSON.stringify({
+          UserID: user['UserID'],
+        }), // body data type must match "Content-Type" header
+      });
+      const data = await response.json();
+      // console.log(data.count);
+      dispatch(setPlaylistData(data));
+
+    } catch (error) {
+      console.error("Error fetching songs:", error);
+      // Handle error gracefully, e.g., display an error message to the user
+      return [];
+    }
+  };
+
+  async function setLike(song) {
+
+    try {
+      const response = await fetch(`http://${ip}:${port}/like`, {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: JSON.stringify({
+          songid: song['songid'],
+          userid: user['UserID']
+        }), // body data type must match "Content-Type" header
+      });
+      const data = await response.json();
+      document.getElementById(`likes_${song['songid']}`).innerHTML = "Likes : " + data['likes'];
+      // console.log(data['likes']);
+      // return response.json(); 
+    } catch (error) {
+      console.error("Error fetching songs:", error);
+      // Handle error gracefully, e.g., display an error message to the user
+      return 0;
+    }
+  }
+
+  
+async function setDislike(song) {
+
+  try {
+    const response = await fetch(`http://${ip}:${port}/dislike`, {
+      method: "POST", // *GET, POST, PUT, DELETE, etc.
+      mode: "cors", // no-cors, *cors, same-origin
+      headers: {
+        "Content-Type": "application/json",
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: JSON.stringify({
+        songid: song['songid'],
+        userid: user['UserID']
+      }), // body data type must match "Content-Type" header
+    });
+    const data = await response.json();
+    document.getElementById(`dislikes_${song['songid']}`).innerHTML = "Dislikes : " + data['dislikes'];
+    // console.log(data['likes']);
+    // return response.json(); 
+  } catch (error) {
+    console.error("Error fetching songs:", error);
+    // Handle error gracefully, e.g., display an error message to the user
+    return 0;
+  }
+}
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -119,14 +177,18 @@ function Songs() {
     };
 
     fetchData();
+    fetchPlaylistsCount();
   }, []);
 
-  const [url, setUrl] = useState("");
+  
+
+  // const [url, setUrl] = useState('');
+
+  // songs.forEach((s)=>{console.log(s)});
 
   return (
     <>
       <div className="p-2">
-
       <div className="display-1 ">
       Songs
     </div>
@@ -135,15 +197,22 @@ function Songs() {
 
   {songs.length > 0 && (
     <div data-bs-spy="scroll" data-bs-target="#song-list" data-bs-offset={0} className="container" tabIndex={0}>
-      {/* Set target for potential scrolling */}
       {songs.map((song) => (
+
+        // console.log(song);
+        // {};
+
         <div className="card m-2 row" key={song['songid']}>
-          <h3 className="card-title mt-2" onClick={() => setUrl(song['url'])}>
+          <h3 className="card-title mt-2" onClick={() => {
+            dispatch(setURL(song))
+          }}>
             {song['title']}
           </h3> {/* Use h3 for song title */}
           <div className="row vol-ctr d-flex justify-content-around">
             <div className="col ml ms-2">
-                  <img src={music} alt="" style={{ height: 120, width: 100 }} className="rounded float-start"  onClick={() => setUrl(song['url'])}/>
+                  <img src={music} alt="" style={{ height: 120, width: 100 }} className="rounded float-start"  onClick={() => {
+                    ''
+                  }}/>
             </div>
             <div className="col-sm-7 mb-5">
               <div className="card song-info">
@@ -176,6 +245,9 @@ function Songs() {
                         setDislike(song);
                       }}>Dislike</button>
                     </div>
+
+                    < AddPlaylist/>
+                    <DeletePlaylist/>
                   </div>
                 </div>
               </div>
@@ -183,14 +255,14 @@ function Songs() {
           </div>
         </div>
       ))}
+
+
     </div>
   )}
   {/* <SearchComponent fact={"Search Songs"} /> */}
-</div>
-
-    <MusicContext.Provider value={url}>
-      <Player url={url}/>
-    </MusicContext.Provider>
+  
+  </div>
+    
     </>
   );
 }

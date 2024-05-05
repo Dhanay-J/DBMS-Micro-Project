@@ -1,13 +1,13 @@
 
 import { useContext, useEffect, useState } from "react";
 import SearchComponent from "./Search";
-import { MusicContext } from "./Songs";
-import Player from "./Player";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
 import AddSong from "./AddSong";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import DeleteSong from "./DeleteSong";
+import { useDispatch } from 'react-redux';
+import { setURL } from './reducer';
 
 
 // Context provider component
@@ -16,7 +16,7 @@ const port = 30000;
 
 async function fetchArtist() {
   try {
-    const songs = await fetch(`http://${ip}:${port}/songs?Query=select distinct s.title,a.name, s.url, a.artistid , al.Title as albumt from songs s join artist a on a.ArtistID = s.ArtistID join albums al on s.AlbumID = al.AlbumID  order by a.ArtistID`);
+    const songs = await fetch(`http://${ip}:${port}/songs?Query=select distinct s.title,a.name, s.url,s.songid, a.artistid , al.Title as albumt from songs s join artist a on a.ArtistID = s.ArtistID join albums al on s.AlbumID = al.AlbumID  order by a.ArtistID`);
     if (!songs.ok) {
       throw new Error(`Error fetching songs: ${songs.statusText}`);
     }
@@ -34,12 +34,8 @@ function Artists() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const user = useContext(UserContext);
+  const dispatch = useDispatch();
 
-  const [addSongs, setAddSongs] = useState(false);
-
-  const togleAddSongs = () => {
-    setAddSongs(!addSongs);
-  }
 
   const navigate = useNavigate();
 
@@ -53,6 +49,7 @@ function Artists() {
         alert("Redirecting to login");
         navigate('/login', { replace: true });
       }
+  
 
       try {
         const fetchedArtist = await fetchArtist();
@@ -60,6 +57,7 @@ function Artists() {
       } catch (err) {
         console.error(err);
         setError(err.message);
+        alert(error)
       } finally {
         setIsLoading(false);
       }
@@ -67,10 +65,7 @@ function Artists() {
 
     fetchData();
   }, []);
-  // const [url, setUrl] = useState("");
-  
-  const [url, setUrl] = useState("");
-  // console.log(artist);
+
 
   const groupedData = artist.reduce((acc, row) => {
     const artistId = row['artistid'];
@@ -81,8 +76,10 @@ function Artists() {
 
   let i=0;
   let j=0;
-  
+
   const isArtist = user['UserType']==='artist' ? true : false;
+  // groupedData.forEach((s)=>{console.log(s)});
+  
   return (
     <>
     <div className="display-1 ">
@@ -94,7 +91,9 @@ function Artists() {
           <div className="card-header">{`Artist : ${artist['name']}`}</div>
           <ul className="list-group list-group-flush">
             {songs.map((song) => (
-              <li key={j++} className="list-group-item m-2 title" onClick={()=>{setUrl(song['url'])}}>
+              <li key={j++} className="list-group-item m-2 title" onClick={()=>{
+                dispatch(setURL({url:song['url'], position:0}))
+              }}>
                 Song - {song['title']}
                 <h6>Album : {song['albumt']}</h6>
               </li>
@@ -114,9 +113,7 @@ function Artists() {
       }
 
     </div>
-      <MusicContext.Provider value={url}>
-        <Player url={url}/>
-      </MusicContext.Provider>
+      
     </>
   );
 }

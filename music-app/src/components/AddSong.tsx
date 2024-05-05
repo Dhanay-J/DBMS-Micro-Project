@@ -233,7 +233,7 @@ function AddSong() {
                             </Dropdown.Toggle>
 
                             <Dropdown.Menu key={i = i+1}>
-                                {albums.map((album, j)=>(
+                                {Object.keys(albums).map((album, j)=>(
                                     <Dropdown.Item key={j} onClick={(e)=>{
                                       setAlbum(e.target.text) ; 
                                       setAlbumID(albums[j]['AlbumID'])}}>{album['Title']}

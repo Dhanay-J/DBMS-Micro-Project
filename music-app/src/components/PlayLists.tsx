@@ -1,10 +1,9 @@
-import { useContext, useEffect, useState } from "react";
+import {useContext, useEffect, useState } from "react";
 import SearchComponent from "./Search";
-import music from "../assets/music.jpg";
-import { MusicContext } from "./Songs";
-import Player from "./Player";
 import { UserContext } from "./UserContext";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setURL } from './reducer';
 
 const ip = 'localhost';
 const port = 30000;
@@ -14,7 +13,7 @@ const port = 30000;
 
 async function fetchPlaylist() {
   try {
-    const response = await fetch(`http://${ip}:${port}/songs?Query=SELECT p.playlistid, s.title, s.songid, a.artistid, a.name,s.url FROM playlist p INNER JOIN playsong ps ON p.playlistid = ps.playlists_id INNER JOIN songs s ON ps.song_id = s.songid inner JOIN artist a on s.artistid = a.artistid order by p.playlistid`);
+    const response = await fetch(`http://${ip}:${port}/songs?Query=SELECT p.playlistid, s.title, s.songid, a.artistid, a.name,s.url,p.name Pname FROM playlist p INNER JOIN playsong ps ON p.playlistid = ps.playlists_id INNER JOIN songs s ON ps.song_id = s.songid inner JOIN artist a on s.artistid = a.artistid order by p.playlistid`);
     if (!response.ok) {
       throw new Error(`Error fetching songs: ${response.statusText}`);
     }
@@ -33,6 +32,9 @@ function PlayLists() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const user = useContext(UserContext);
+  const dispatch = useDispatch();
+
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -69,11 +71,8 @@ function PlayLists() {
     acc[playlistId].push(Object.assign({}, row, Object.keys(row).slice(0, 2))); // Remove playlist ID from song data
     return acc;
   }, {});
-  
 
-  const [url, setUrl] = useState("");
-  
-  // console.log(user);
+  // console.log(groupedData);
   return (
     <>
     <div className="display-1 ">
@@ -82,30 +81,32 @@ function PlayLists() {
     <div>
       {Object.entries(groupedData).map(([playlistId, songs]) => (
         <div className="card p-2 m-2 playlist-group" key={playlistId}>
-          <h2>Playlist : {playlistId}</h2>
+          <h2>Playlist : {songs[0]['Pname'] }</h2>
           <ul className="list-group">
-            {songs.map((song) => (
-              <li className="list-group-item song-title" key={`${song['url']}_${playlistId}`} onClick={()=>
-                setUrl(song['url'])
-              }>
-                {song['title']}
+            {
+            songs.map((song) => (
+
+                                
+                <li className="list-group-item song-title" key={`${song['url']}_${playlistId}`} onClick={()=>
+                  dispatch(setURL({url:song['url'], position:0}))
+                }>
+                  {song['title']}
+                
+                </li>
+                
+            )
+
               
-              </li>
-              
-            ))}
+            )
+          }
           </ul>
         </div>
       ))}
       <div>
 
-      <button className='btn btn-success fixed-bottom m-2 ' style={{width:40}} onClick={()=>{
-        alert("Add playlist");
-      }}>+</button>
       </div>
     </div>
-    <MusicContext.Provider value={url}>
-      <Player url={url}/>
-    </MusicContext.Provider>
+    
     </>
   )
 }

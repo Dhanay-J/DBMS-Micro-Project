@@ -1,25 +1,29 @@
-import ReactAudioPlayer from 'react-audio-player';
-import { useContext } from 'react';
-import { MusicContext } from './Songs';
+// import ReactAudioPlayer from 'react-audio-player';
+// import { useContext, useEffect} from 'react';
+import ReactPlayer from 'react-player';
+import { useSelector } from 'react-redux';
+
+
 
 const Player = () => {
+  // const musicCnt = useSong();
 
-  const url = useContext(MusicContext);
- 
-  
+  const url = useSelector((state:any) => state.song.url);
+
   return (
     <>
-      <div className="d-flex justify-content-center fixed-bottom m-3" style={{zIndex:2, position:'fixed'}}>
-        <ReactAudioPlayer
-          src={url}
-          volume={0.2}
-          autoPlay
-          controls
-          className="w-80"
-        />
-
+      <div className='d-flex justify-content-center fixed-bottom ' style={{zIndex:2, position:'fixed'}}>
         
-      </div>
+        <ReactPlayer
+          url={url}
+          volume={0.2}
+          playing
+          controls
+          className='m-3 rounded '         
+          width='60%'
+          height='50px'
+          />
+    </div>
     </>
   );
 };
