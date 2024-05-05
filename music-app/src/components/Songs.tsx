@@ -118,6 +118,8 @@ function Songs() {
       });
       const data = await response.json();
       document.getElementById(`likes_${song['songid']}`).innerHTML = "Likes : " + data['likes'];
+      // fetchSongs();
+
       // console.log(data['likes']);
       // return response.json(); 
     } catch (error) {
@@ -144,7 +146,12 @@ async function setDislike(song) {
       }), // body data type must match "Content-Type" header
     });
     const data = await response.json();
+    // if(data['likes'] !== 0){
+    document.getElementById(`likes_${song['songid']}`).innerHTML = "Likes : " + data['likes'];
+    
     document.getElementById(`dislikes_${song['songid']}`).innerHTML = "Dislikes : " + data['dislikes'];
+    
+    // fetchSongs();
     // console.log(data['likes']);
     // return response.json(); 
   } catch (error) {

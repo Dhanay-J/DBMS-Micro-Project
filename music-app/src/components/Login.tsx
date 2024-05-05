@@ -21,35 +21,38 @@ function Login() {
 
     async function handleSubmit(e) {
         e.preventDefault();
-        // console.log(email, password);
-      const res = await fetch(`http://${ip}:${port}/signin`, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: email,
-        password: password,
-      }),
-    }
-  )
 
-    // console.log(" Response is : "+res.json());
-    const data = await res.json();
+        try{
+          const res = await fetch(`http://${ip}:${port}/signin`, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password,
+          }),
+        })
     
-
-    if(data['success']==true){
-        user['Login'] = true;
-        user['UserType'] = data['user']['UserType'];
-        user['Username'] = data['user']['Username'];
-        user['UserID'] = data['user']['UserID'];
-        user['Email'] = data['user']['Email'];
-        navigate('/', { replace: true });
-    }
-    else{
-        alert("Invalid Email or Password");
-    }
+        // console.log(" Response is : "+res.json());
+        const data = await res.json();
+        
+        if(data['success']==true){
+            user['Login'] = true;
+            user['UserType'] = data['user']['UserType'];
+            user['Username'] = data['user']['Username'];
+            user['UserID'] = data['user']['UserID'];
+            user['Email'] = data['user']['Email'];
+            navigate('/', { replace: true });
+        }
+        else{
+            alert("Invalid Email or Password");
+        }
+        }catch(e){
+          alert("Server Error : Please try again later"); 
+        }
+        // console.log(email, password);
     // console.log(user);  
   }
 
