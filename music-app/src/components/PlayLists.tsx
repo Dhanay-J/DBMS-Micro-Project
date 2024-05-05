@@ -13,7 +13,7 @@ const port = 30000;
 
 async function fetchPlaylist() {
   try {
-    const response = await fetch(`http://${ip}:${port}/songs?Query=SELECT p.playlistid, s.title, s.songid, a.artistid, a.name,s.url,p.name Pname FROM playlist p INNER JOIN playsong ps ON p.playlistid = ps.playlists_id INNER JOIN songs s ON ps.song_id = s.songid inner JOIN artist a on s.artistid = a.artistid order by p.playlistid`);
+    const response = await fetch(`http://${ip}:${port}/songs?Query=SELECT p.playlistid, s.title, s.songid, a.artistid, a.name,s.url,p.name Pname, p.userid uid FROM playlist p INNER JOIN playsong ps ON p.playlistid = ps.playlists_id INNER JOIN songs s ON ps.song_id = s.songid inner JOIN artist a on s.artistid = a.artistid order by p.playlistid`);
     if (!response.ok) {
       throw new Error(`Error fetching songs: ${response.statusText}`);
     }
@@ -72,6 +72,7 @@ function PlayLists() {
     return acc;
   }, {});
 
+
   // console.log(groupedData);
   return (
     <>
@@ -80,7 +81,7 @@ function PlayLists() {
     </div>
     <div>
       {Object.entries(groupedData).map(([playlistId, songs]) => (
-        <div className="card p-2 m-2 playlist-group" key={playlistId}>
+        <div className={songs[0]['uid']===user['UserID']?"card p-2 m-2 playlist-group bg-primary" :"card p-2 m-2 playlist-group bg-secondary"} key={playlistId}>
           <h2>Playlist : {songs[0]['Pname'] }</h2>
           <ul className="list-group">
             {

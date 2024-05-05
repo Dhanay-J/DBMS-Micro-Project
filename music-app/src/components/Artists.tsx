@@ -1,11 +1,9 @@
 
 import { useContext, useEffect, useState } from "react";
-import SearchComponent from "./Search";
+// import SearchComponent from "./Search";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
-import AddSong from "./AddSong";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import DeleteSong from "./DeleteSong";
 import { useDispatch } from 'react-redux';
 import { setURL } from './reducer';
 
@@ -88,7 +86,9 @@ function Artists() {
     <div>
       {Object.entries(groupedData).map(([artistId, { artist, songs }]) => (
         <div key={i++} className="card mb-3">
-          <div className="card-header">{`Artist : ${artist['name']}`}</div>
+          <div className={user['UserID']===artist['artistid']?"card-header bg-primary":"card-header bg-secondary"}>
+            {`Artist : ${artist['name']}`}
+          </div>
           <ul className="list-group list-group-flush">
             {songs.map((song) => (
               <li key={j++} className="list-group-item m-2 title" onClick={()=>{
@@ -102,15 +102,6 @@ function Artists() {
         </div>
       ))}
 
-      {
-      isArtist?
-        <div>
-          <AddSong/>
-          <DeleteSong/>
-        </div>
-      
-      :''
-      }
 
     </div>
       

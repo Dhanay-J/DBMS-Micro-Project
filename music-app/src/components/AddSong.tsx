@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 
 const ip = 'localhost';
 const port = 30000;
-
+const flask_port = 5000 
 
 
 function convertSecondstoTime(t=0) {
@@ -44,13 +44,25 @@ function AddSong() {
 
 
   async function getSongDuration() {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    // const audioContext = new (window.AudioContext || window.webkitAudioContext)();
   
     try {
-      const newSong = await fetch(url);
-      const audioBuffer = await audioContext.decodeAudioData(await newSong.arrayBuffer());
-      const d = Math.ceil(audioBuffer.duration);
-      return d;  // Optional: Return the duration for further use
+      const newSong = await fetch(`http://${ip}:${flask_port}/`, {
+        method: 'POST',
+        // mode: 'no-cors',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            url: url
+        }),
+    });
+      // const audioBuffer = await audioContext.decodeAudioData(await newSong.arrayBuffer());
+      // const d = Math.ceil(audioBuffer.duration);
+      const data = await newSong.json();
+      console.log(data['Length']);
+
+      return data['Length'];  // Optional: Return the duration for further use
     } catch (error) {
        // Or handle error differently
       return 0;   // Optional: Return a default value on error
@@ -174,11 +186,11 @@ function AddSong() {
               
                 <div className='mb-3'>
                     <label>Title</label>
-                    <input placeholder='Enter Song Title' defaultValue={'ss'} className='form-control' onChange={e => setTitle(e.target.value.trim())}/>
+                    <input placeholder='Enter Song Title' defaultValue={''} className='form-control' onChange={e => setTitle(e.target.value.trim())}/>
                 </div>
                 <div className='mb-3'>
                     <label >URL</label>
-                    <input type="text" defaultValue={'/src/assets/songs/Gods Plan..mp3'} placeholder='Enter Song Url' className='form-control' onChange={(e) => {
+                    <input type="text" defaultValue={''} placeholder='Enter Song Url' className='form-control' onChange={(e) => {
                         setUrl(e.target.value.trim());
                         
                         }}/>
