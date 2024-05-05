@@ -5,6 +5,8 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import { UserContext } from './UserContext';
 import { Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setURL } from './reducer';
 
 
 const ip = 'localhost';
@@ -15,12 +17,14 @@ const port = 30000;
 function DeleteSong() {
   const [show, setShow] = useState(false);
   const user = useContext(UserContext);
-
+  // const song = useSelector((state) => state.song);
+ 
   const [title, setTitle] = useState('');
   const [url, setUrl] = useState('');
   
   const [songId, setSongID] = useState(0);
   const [songs, setSongs] = useState([]);
+  const [song, setSong] = useState('');
 
   const [isAlbum, setIsAlbum] = useState(false);
   const [album, setAlbum] = useState("");
@@ -29,6 +33,9 @@ function DeleteSong() {
 
   const navigate = useNavigate();
 
+  const dispatch = useDispatch();
+
+  // dispatch(setURL(song));
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -87,13 +94,16 @@ function DeleteSong() {
             }
         }
 
+        fetchSongs();
+        fetchAlbums();
+
 }
 
   function handleClose() {
     setTitle('');
     setUrl('');
+    setSong('');
     setSongID(0);
-    setSong("");
     setIsAlbum(false);
     setAlbumID(0);
     setAlbum("");
@@ -164,7 +174,8 @@ function DeleteSong() {
         };
     
         fetchData();
-      }, [user, album, song]);
+
+      }, [user, songs]);
       let i = 0;
   return (
     < >
@@ -252,7 +263,7 @@ function DeleteSong() {
                 (!song ?
                 <div className='p-2' >Song Not Selected</div>
                 :
-                <div className='p-2'>Selected Song: {song['title']}</div>
+                <div className='p-2'>Selected Song: {song}</div>
                 )
               }
 

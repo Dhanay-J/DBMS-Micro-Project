@@ -697,7 +697,9 @@ app.post('/addSong', async (req, res) => {
     title = req.body['Title'];
     
     let artistid = 0;
-    let albumid = 0;
+
+    let albumid=0;
+    albumid = req.body['AlbumID'];
     
     let albumtitle = '';
     albumtitle = req.body['AlbumTitle'];
@@ -741,19 +743,22 @@ app.post('/addSong', async (req, res) => {
             }
 
             artistid = results[0]['ArtistID'];
+
             // Get the albumID
-            connection.query(`SELECT COUNT(*) as c FROM music.albums AS a WHERE a.ArtistID = ${artistid} AND a.Title = '${title.replace(/'/g, "''")}'`, function (err, results, fields) {
+            connection.query(`SELECT COUNT(*) as c FROM music.albums AS a WHERE a.ArtistID = ${artistid} AND a.Title = '${albumtitle.replace(/'/g, "''")}'`, function (err, results, fields) {
               if (err) {
                   console.error(err);
                   return res.status(500).json({ success: false, error: 'Internal Server Error' });
               }
         
-              if(results.length == 0){
+              if(results.length === 0){
                 return res.status(404).json({ success: false, error: 'No Album found' });
               }
+
+              console.log(`SELECT COUNT(*) as c FROM music.albums AS a WHERE a.ArtistID = ${artistid} AND a.Title = '${title.replace(/'/g, "''")}'`)
               
         
-              if(results[0]['c']==0){
+              if(results[0]['c']===0){
                 // Album is not present
                 connection.query(`select max(AlbumID)+1 as ID from music.albums`, function (err, results, fields) {
                   if (err) {
@@ -762,7 +767,7 @@ app.post('/addSong', async (req, res) => {
                   }
                   albumid = results[0]['ID'];
                   
-                  console.log('\n\n\n\nAlbumID: ', imageurl, '\n\n\n\n');
+                  console.log('\n\n\n\nAlbumID: ', albumid, '\n\n\n\n');
                   // Insert the album
                   connection.query(`INSERT INTO music.albums (AlbumID, Title, ArtistID, ReleaseDate, ImageURL) VALUES (${albumid}, '${albumtitle.replace(/'/g, "''")}', ${artistid}, '${releaseDate}', '${imageurl.replace(/'/g, "''")}' )`, function (err, results, fields) {
                     if (err) {

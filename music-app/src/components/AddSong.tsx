@@ -46,8 +46,8 @@ function AddSong() {
   async function getSongDuration() {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
   
-    const newSong = await fetch(url);
     try {
+      const newSong = await fetch(url);
       const audioBuffer = await audioContext.decodeAudioData(await newSong.arrayBuffer());
       const d = Math.ceil(audioBuffer.duration);
       return d;  // Optional: Return the duration for further use
@@ -110,6 +110,7 @@ function AddSong() {
     setAlbum('');
     setDate('');
     setIsNewAlbum(false);
+    getAlbums();
     document.getElementsByTagName('form')[0].reset();
     setShow(false);
   }
@@ -155,7 +156,7 @@ function AddSong() {
         };
     
         fetchData();
-      }, [user]);
+      }, [user, albums]);
       let i = 0;
   return (
     <>
@@ -230,13 +231,15 @@ function AddSong() {
                         <Dropdown>
                             <Dropdown.Toggle variant="success" id="dropdown-basic">
                                 Your Albums
+                                
                             </Dropdown.Toggle>
 
                             <Dropdown.Menu key={i = i+1}>
                                 {Object.keys(albums).map((album, j)=>(
                                     <Dropdown.Item key={j} onClick={(e)=>{
-                                      setAlbum(e.target.text) ; 
-                                      setAlbumID(albums[j]['AlbumID'])}}>{album['Title']}
+                                      setAlbum(e.target.text) ;
+                                      console.log('sdf', albums[j]['AlbumID']) ;
+                                      setAlbumID(albums[j]['AlbumID'])}}>{albums[j]['Title']}
                                     </Dropdown.Item>
                                 ))}                                
                             </Dropdown.Menu>
