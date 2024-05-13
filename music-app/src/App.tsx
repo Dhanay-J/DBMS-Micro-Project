@@ -10,6 +10,7 @@ import Login from './components/Login.tsx'
 import { Provider } from 'react-redux'
 import { store } from './components/store.tsx'
 import Register from './components/Register.tsx'
+import Admin from './components/Admin.tsx'
 
 function App() {
   
@@ -30,6 +31,7 @@ function App() {
                 <Route path='/artists' element={<Artists />} />
                 <Route path='/login' element={<Login />} />
                 <Route path='/register' element={<Register />} />
+                <Route path='/admin' element={<Admin />} />
             </Routes>
             {loca.pathname == '/login' || loca.pathname === '/register' ? '' : <Player />}
                 

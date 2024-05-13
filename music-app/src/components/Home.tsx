@@ -20,7 +20,8 @@ function Home() {
 
   return (
     <div>
-      <div className="display-2">Home Page of {user['Username']}</div>
+      <div className="display-2">Home Page of {user['Username'] }</div>
+      {user['UserType']=== 'artist' ? <div className="display-4">You are an Artist</div> : <div className="display-4">You are a Listener</div>}
       {
       isArtist?
         <div>

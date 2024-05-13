@@ -76,7 +76,7 @@ function Artists() {
   let j=0;
 
   const isArtist = user['UserType']==='artist' ? true : false;
-  // groupedData.forEach((s)=>{console.log(s)});
+  groupedData.forEach((s)=>{console.log(s)});
   
   return (
     <>
@@ -86,7 +86,7 @@ function Artists() {
     <div>
       {Object.entries(groupedData).map(([artistId, { artist, songs }]) => (
         <div key={i++} className="card mb-3">
-          <div className={user['UserID']===artist['artistid']?"card-header bg-primary":"card-header bg-secondary"}>
+          <div className={user['UserID']===artist['artistid']?"card-header bg-secondary":"card-header bg-secondary"}>
             {`Artist : ${artist['name']}`}
           </div>
           <ul className="list-group list-group-flush">

@@ -168,8 +168,10 @@ function AddSong() {
         };
     
         fetchData();
-      }, [user, albums]);
+      }, [user]);
       let i = 0;
+
+      
   return (
     <>
       <Button variant="primary m-2 fixed-bottom" onClick={handleShow} style={{width:120}}>
@@ -247,13 +249,17 @@ function AddSong() {
                             </Dropdown.Toggle>
 
                             <Dropdown.Menu key={i = i+1}>
-                                {Object.keys(albums).map((album, j)=>(
+                              {!albums || albums.length===0 || albums['error']? "":
+                                                               
+                                Object.keys(albums).map((album, j)=>(
                                     <Dropdown.Item key={j} onClick={(e)=>{
                                       setAlbum(e.target.text) ;
-                                      console.log('sdf', albums[j]['AlbumID']) ;
-                                      setAlbumID(albums[j]['AlbumID'])}}>{albums[j]['Title']}
+                                      // console.log('sdf', albums[j]['AlbumID']) ;
+                                      setAlbumID(albums[j]['AlbumID'])}}>
+                                        {albums[j]['Title']?albums[j]['Title']:''}
                                     </Dropdown.Item>
-                                ))}                                
+                                ))                              
+                              }
                             </Dropdown.Menu>
                             </Dropdown>
                      </div>

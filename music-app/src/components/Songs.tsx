@@ -66,7 +66,7 @@ function Songs() {
   const [songs, setSongs] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+  // const [color, setColor] = useState("#ffffff");
   const user = useContext(UserContext);
 
 
@@ -215,16 +215,20 @@ async function setDislike(song) {
             dispatch(setURL(song))
           }}>
             {song['title']}
-          </h3> {/* Use h3 for song title */}
-          <div className="row vol-ctr d-flex justify-content-around">
-            <div className="col ml ms-2">
-                  <img src={music} alt="" style={{ height: 120, width: 100 }} className="rounded float-start"  onClick={() => {
-                    ''
-                  }}/>
+          </h3> 
+          <div className="row  justify-content-center" >
+            <div className="col-2 m-2 p-2" onClick={() => {
+            dispatch(setURL(song))
+          }}>
+                  <img src={music} alt="No Thumbnail" style={{ height: 220, width: 120 }} className="rounded float-start"  />
             </div>
-            <div className="col-sm-7 mb-5">
+            <div className="col-sm-7 mb-5" >
               <div className="card song-info">
                 <div className="card-body">
+                  <div onClick={() => {
+            dispatch(setURL(song))
+          }}>
+
                   <h5 className="card-title artist-name" onClick={() => {}}>
                     {song['name']}
                   </h5>
@@ -236,10 +240,11 @@ async function setDislike(song) {
                   <h5 className="card-text">
                     Duration: {convertSecondstoTime(song['duration'])}
                   </h5>
+                  </div>
 
                   <div className="row vol-ctr d-flex justify-content-around">
                     
-                    <div className="col ml ms-2 like m-4">
+                    <div className="col ml ms-2 like m-4" >
                       <h5 id={"likes_"+song['songid']}> Likes : {song['likes']}</h5>
                       <button type="button" className="btn btn-primary" onClick={()=>{
                         setLike(song);

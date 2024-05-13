@@ -12,7 +12,8 @@ function MusicNavbar() {
   const user = useContext(UserContext);
 
   const isLoggedin = user['Login'];
-  
+  const isAdmin = user['UserType'].trim()==='admin' ? true : false;
+
   return (
         <>
         <Navbar bg="dark" variant="dark" expand="lg" className="d-flex justify-content-between">
@@ -24,6 +25,10 @@ function MusicNavbar() {
                   <Nav.Link onClick={() => navigate("/songs")}>Songs</Nav.Link>
                   <Nav.Link onClick={() => navigate("/playlists")}>Playlists</Nav.Link>
                   <Nav.Link onClick={() => navigate("/artists")}>Artists</Nav.Link>
+                  {!isAdmin?'':
+                  <Nav.Link onClick={() => navigate("/admin")}>Admin</Nav.Link>
+                  }
+
                   
                   
                 {isLoggedin ? 
